@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma3 (Mathree) - MSC2020</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Load the separated data file -->
+    <script src="data.js"></script>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        header p {
+            margin: 0.25rem 0 0 0;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        #mathree-container {
+            flex: 1;
+            width: 100%;
+            background-color: var(--bg-color);
+            cursor: grab;
+            position: relative;
+        }
+
+        #mathree-container:active {
+            cursor: grabbing;
+        }
+
+        .link {
+            fill: none;
+            stroke: #cbd5e1;
+            stroke-width: 2px;
+        }
+
+        .node circle {
+            stroke-width: 2.5px;
+        }
+
+        .node text {
+            font-family: 'Verdana', sans-serif;
+            font-size: 13px;
+            text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+        }
+
+        .node a text:hover {
+            text-decoration: underline;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Ma3 (Mathree) 🌳</h1>
+        <p>Mathematics Classification Tree. Drag to pan, scroll to zoom in/out.</p>
+    </header>
+
+    <div id="mathree-container"></div>
+
+    <script>
+        const container = document.getElementById("mathree-container");
+        const innerWidth = 1400; 
+        const innerHeight = 800;
+
+        const svg = d3.select("#mathree-container")
+            .append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .call(d3.zoom().on("zoom", function (event) {
+                g.attr("transform", event.transform);
+            }))
+            .append("g")
+            .attr("transform", "translate(150, 300)");
+
+        const g = svg;
+        const treeLayout = d3.tree().size([innerHeight - 200, innerWidth - 400]);
+        
+        // mscData is loaded from data.js
+        const root = d3.hierarchy(mscData, d => d.cabang);
+        treeLayout(root);
+
+        g.selectAll(".link")
+            .data(root.links())
+            .join("path")
+            .attr("class", "link")
+            .attr("d", d3.linkHorizontal()
+                .x(d => d.y)
+                .y(d => d.x)
+            );
+
+        const node = g.selectAll(".node")
+            .data(root.descendants())
+            .join("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${d.y},${d.x})`);
+
+        node.append("circle")
+            .attr("r", 7)
+            .style("fill", "#fff")
+            .style("stroke", d => d.data.warna);
+
+        // Conditional linking logic
+        node.each(function(d) {
+            const el = d3.select(this);
+            let textContainer = el;
+
+            // If a link exists and is not empty, wrap the text in an <a> tag
+            if (d.data.link && d.data.link.trim() !== "") {
+                textContainer = el.append("a")
+                    .attr("href", d.data.link)
+                    .attr("target", "_blank")
+                    .style("text-decoration", "none");
+            }
+
+            textContainer.append("text")
+                .attr("dy", 4)
+                .attr("x", d.children ? -12 : 12)
+                .style("text-anchor", d.children ? "end" : "start")
+                .style("fill", d.data.warna)
+                .text(d.data.nama);
+        });
+    </script>
+</body>
+</html>

@@ -21,7 +21,21 @@ const mscData = {
 			id: "03-XX",
             nama: "Mathematical Logic and Foundations",
             link: "",
-            warna: "#1ba01f",
+            warna: "#cfd6d3",
+            cabang: []
+        },
+        {	
+			id: "05-XX",
+            nama: "Combinatorics",
+            link: "",
+            warna: "#770768",
+            cabang: []
+        },
+        {	
+			id: "06-XX",
+            nama: "Order, Lattices, Ordered Algebraic Structures",
+            link: "",
+            warna: "#221c28",
             cabang: []
         },
         {	

@@ -107,7 +107,7 @@ const mscData = {
         {	
 			id: "62-XX",
             nama: "Statistics",
-            link: "",
+            link: "62-XX.html",
             warna: "#030c16",
             cabang: []
         },
@@ -145,6 +145,13 @@ const mscData = {
             nama: "Systems Theory; Control",
             link: "",
             warna: "#823b5a",
+            cabang: []
+        },
+        {	
+			id: "97-XX",
+            nama: "Mathematics Education",
+            link: "",
+            warna: "#a7dba6",
             cabang: []
         },
     ]

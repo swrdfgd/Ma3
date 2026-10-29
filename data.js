@@ -76,6 +76,13 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "14-XX",
+            nama: "Algebraic Geometry",
+            link: "",
+            warna: "#302c06",
+            cabang: []
+        },
+        {	
 			id: "26-XX",
             nama: "Real Functions and Fundamental Calculus",
             link: "26-XX.html",

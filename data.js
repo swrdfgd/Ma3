@@ -69,6 +69,13 @@ const mscData = {
 			]
         },
         {	
+			id: "13-XX",
+            nama: "Commutative Algebra",
+            link: "",
+            warna: "#c3f450",
+            cabang: []
+        },
+        {	
 			id: "26-XX",
             nama: "Real Functions and Fundamental Calculus",
             link: "26-XX.html",

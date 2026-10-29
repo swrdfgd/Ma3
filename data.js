@@ -18,6 +18,13 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "03-XX",
+            nama: "Mathematical Logic and Foundations",
+            link: "",
+            warna: "#1ba01f",
+            cabang: []
+        },
+        {	
 			id: "08-XX",
             nama: "General Algebraic Systems",
             link: "",

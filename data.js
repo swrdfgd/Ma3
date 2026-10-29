@@ -46,6 +46,13 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "11-XX",
+            nama: "Number Theory",
+            link: "",
+            warna: "#202121",
+            cabang: []
+        },
+        {	
 			id: "12-XX",
             nama: "Algebra, Field Theory and Polynomials",
             link: "",

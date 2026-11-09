@@ -7,6 +7,7 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <!-- Load the separated data file -->
     <script src="data.js"></script>
+	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -80,6 +81,10 @@
             font-weight: bold;
             cursor: pointer;
         }
+		
+		.node-link:hover {
+            text-decoration: underline !important;
+        }
     </style>
 </head>
 <body>
@@ -128,31 +133,116 @@
             .attr("class", "node")
             .attr("transform", d => `translate(${d.y},${d.x})`);
 
-        node.append("circle")
-            .attr("r", 7)
-            .style("fill", "#fff")
-            .style("stroke", d => d.data.warna);
+		// 1. BOLA MAINAN PLASTIK (Warna Solid, Shiny & Bisa Diklik)
+        // Membungkus bola dengan elemen <a> SVG
+        const ballLink = node.append("a")
+            .attr("target", "_blank")
+            // Hanya tambahkan atribut href jika data link tersedia
+            .attr("href", d => (d.data.link && d.data.link.trim() !== "") ? d.data.link : null)
+            .style("cursor", d => (d.data.link && d.data.link.trim() !== "") ? "pointer" : "default");
 
-        // Conditional linking logic
+        // Lingkaran dasar diletakkan di dalam tag <a>
+        ballLink.append("circle")
+            .attr("class", "base-circle")
+            .attr("r", 10) 
+            .style("fill", d => d.data.warna) 
+            .style("stroke", "rgba(0, 0, 0, 0.1)") 
+            .style("stroke-width", "1px")
+            .style("filter", "drop-shadow(0px 2px 4px rgba(0,0,0,0.2))");
+
+        // Lingkaran pantulan cahaya juga diletakkan di dalam tag <a>
+        ballLink.append("circle")
+            .attr("class", "highlight-circle")
+            .attr("r", 3.5)
+            .attr("cx", -3.5)
+            .attr("cy", -3.5)
+            .style("fill", "rgba(255, 255, 255, 0.75)") 
+            .style("stroke", "none")
+            .style("pointer-events", "none");
+
+        // 2. LOGIKA TEKS (Termasuk MathJax & Link)
         node.each(function(d) {
             const el = d3.select(this);
-            let textContainer = el;
+            const width = 450; 
+            const height = 40;
+            
+            // Jarak agak dijauhkan karena bola sekarang lebih besar
+            const xPos = d.children ? -(width + 18) : 18; 
+            const yPos = -20; 
 
-            // If a link exists and is not empty, wrap the text in an <a> tag
+            const foreignObject = el.append("foreignObject")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("x", xPos)
+                .attr("y", yPos)
+                .style("pointer-events", "none"); // Pointer tembus ke div
+
+            let div = foreignObject.append("xhtml:div")
+                .attr("class", "node-text-container") // Class ini dipakai untuk trigger hover di Javascript
+                .style("width", "100%")
+                .style("height", "100%")
+                .style("display", "flex")
+                .style("align-items", "center")
+                .style("justify-content", d.children ? "flex-end" : "flex-start")
+                .style("font-size", "14px")
+                .style("font-family", "'Verdana', sans-serif")
+                .style("color", d.data.warna)
+                .style("white-space", "nowrap")
+                .style("pointer-events", "auto") // Mengizinkan pointer menangkap teks
+                .style("transform-origin", d.children ? "center right" : "center left") // Penting: agar teks membesar ke arah luar
+                .style("transition", "transform 0.2s ease, font-weight 0.2s ease"); // Transisi animasi halus
+
             if (d.data.link && d.data.link.trim() !== "") {
-                textContainer = el.append("a")
+                div.append("xhtml:a")
                     .attr("href", d.data.link)
                     .attr("target", "_blank")
-                    .style("text-decoration", "none");
+                    .style("text-decoration", "none")
+                    .style("color", "inherit")
+                    .attr("class", "node-link") // Ini memicu garis bawah (underline) di CSS
+                    .html(d.data.nama);
+            } else {
+                div.html(d.data.nama); 
             }
-
-            textContainer.append("text")
-                .attr("dy", 4)
-                .attr("x", d.children ? -12 : 12)
-                .style("text-anchor", d.children ? "end" : "start")
-                .style("fill", d.data.warna)
-                .text(d.data.nama);
         });
+
+        // 3. EVENT HOVER SINKRON (Bola & Teks ikut membesar)
+        node.on("mouseenter", function(event, d) {
+            const el = d3.select(this);
+            
+            // Perbesar Bola
+            el.select(".base-circle").transition().duration(200)
+              .attr("r", 15) // Ukuran bola saat hover
+              .style("filter", "drop-shadow(0px 4px 6px rgba(0,0,0,0.3))");
+              
+            // Geser & Perbesar Pantulan Cahaya
+            el.select(".highlight-circle").transition().duration(200)
+              .attr("r", 5.5).attr("cx", -5).attr("cy", -5);
+              
+            // Perbesar & Tebalkan Teks
+            el.select(".node-text-container")
+              .style("transform", "scale(1.15)") // Skala perbesaran teks
+              .style("font-weight", "bold");
+        })
+        .on("mouseleave", function(event, d) {
+            const el = d3.select(this);
+            
+            // Kembalikan Bola ke normal
+            el.select(".base-circle").transition().duration(200)
+              .attr("r", 10)
+              .style("filter", "drop-shadow(0px 2px 4px rgba(0,0,0,0.15))");
+              
+            // Kembalikan pantulan
+            el.select(".highlight-circle").transition().duration(200)
+              .attr("r", 3.5).attr("cx", -3.5).attr("cy", -3.5);
+              
+            // Kembalikan Teks ke normal
+            el.select(".node-text-container")
+              .style("transform", "scale(1)")
+              .style("font-weight", "normal");
+        });
+		if (window.MathJax) {
+			MathJax.typesetPromise();
+		}	
     </script>
 </body>
 </html>

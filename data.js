@@ -83,6 +83,48 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "15-XX",
+            nama: "Linear and Multilinear Algebra; Matrix Theory",
+            link: "",
+            warna: "#05061e",
+            cabang: []
+        },
+        {	
+			id: "16-XX",
+            nama: "Associative Rings and Algebras",
+            link: "",
+            warna: "#141213",
+            cabang: []
+        },
+        {	
+			id: "17-XX",
+            nama: "Nonssociative Rings and Algebras",
+            link: "",
+            warna: "#524e68",
+            cabang: []
+        },
+        {	
+			id: "18-XX",
+            nama: "Category Theory; Homological Algebra",
+            link: "",
+            warna: "#033751",
+            cabang: []
+        },
+        {	
+			id: "19-XX",
+            nama: "\\(K\\)-Theory",
+            link: "",
+            warna: "#4c82f7",
+            cabang: []
+        },
+        {	
+			id: "20-XX",
+            nama: "Group Theory and Generalizations",
+            link: "",
+            warna: "#792ae0",
+            cabang: []
+        },
+        {	
 			id: "26-XX",
             nama: "Real Functions and Fundamental Calculus",
             link: "26-XX.html",

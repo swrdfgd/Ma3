@@ -147,6 +147,13 @@ const mscData = {
 			]
         },
         {	
+			id: "28-XX",
+            nama: "Measure and Integration",
+            link: "",
+            warna: "#544749",
+            cabang: []
+        },
+        {	
 			id: "47-XX",
             nama: "Operator Theory",
             link: "",

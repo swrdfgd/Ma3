@@ -150,7 +150,14 @@ const mscData = {
 			id: "28-XX",
             nama: "Measure and Integration",
             link: "",
-            warna: "#544749",
+            warna: "#e2b7db",
+            cabang: []
+        },
+        {	
+			id: "30-XX",
+            nama: "Functions of a Complex Variable",
+            link: "",
+            warna: "#1c0d2d",
             cabang: []
         },
         {	

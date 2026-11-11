@@ -203,10 +203,17 @@ const mscData = {
             cabang: []
         },
         {	
-			id: "37-XX",
+			id: "39-XX",
             nama: "Difference and Functional Equations",
             link: "",
             warna: "#9dea59",
+            cabang: []
+        },
+        {	
+			id: "40-XX",
+            nama: "Sequences, Series, Summability",
+            link: "",
+            warna: "#b2a2b2",
             cabang: []
         },
         {	

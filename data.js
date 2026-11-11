@@ -203,6 +203,13 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "37-XX",
+            nama: "Difference and Functional Equations",
+            link: "",
+            warna: "#9dea59",
+            cabang: []
+        },
+        {	
 			id: "47-XX",
             nama: "Operator Theory",
             link: "",

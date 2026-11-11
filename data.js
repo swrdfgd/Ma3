@@ -161,6 +161,27 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "31-XX",
+            nama: "Potential Theory",
+            link: "",
+            warna: "#516825",
+            cabang: []
+        },
+        {	
+			id: "32-XX",
+            nama: "Several Complex Variables and Analytic Spaces",
+            link: "",
+            warna: "#000000",
+            cabang: []
+        },
+        {	
+			id: "33-XX",
+            nama: "Special Functions",
+            link: "",
+            warna: "#00107a",
+            cabang: []
+        },
+        {	
 			id: "47-XX",
             nama: "Operator Theory",
             link: "",

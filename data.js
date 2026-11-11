@@ -182,6 +182,13 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "34-XX",
+            nama: "Ordinary Differential Equations",
+            link: "",
+            warna: "#7559a5",
+            cabang: []
+        },
+        {	
 			id: "47-XX",
             nama: "Operator Theory",
             link: "",

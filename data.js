@@ -189,6 +189,20 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "35-XX",
+            nama: "Partial Differential Equations",
+            link: "",
+            warna: "#4461e2",
+            cabang: []
+        },
+        {	
+			id: "37-XX",
+            nama: "Dynamical Systems and Ergodic Theory",
+            link: "",
+            warna: "#0e1016",
+            cabang: []
+        },
+        {	
 			id: "47-XX",
             nama: "Operator Theory",
             link: "",

@@ -224,6 +224,13 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "42-XX",
+            nama: "Harmonic Analysis on Euclidean Spaces",
+            link: "",
+            warna: "#09010a",
+            cabang: []
+        },
+        {	
 			id: "47-XX",
             nama: "Operator Theory",
             link: "",

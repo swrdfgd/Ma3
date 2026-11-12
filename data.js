@@ -231,6 +231,13 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "43-XX",
+            nama: "Abstract Harmonic Analysis",
+            link: "",
+            warna: "#b77f2a",
+            cabang: []
+        },
+        {	
 			id: "47-XX",
             nama: "Operator Theory",
             link: "",

@@ -238,6 +238,27 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "44-XX",
+            nama: "Integral Transforms, Operational Calculus",
+            link: "",
+            warna: "#965d91",
+            cabang: []
+        },
+        {	
+			id: "45-XX",
+            nama: "Integral Equations",
+            link: "",
+            warna: "#ededed",
+            cabang: []
+        },
+        {	
+			id: "46-XX",
+            nama: "Functional Analysis",
+            link: "",
+            warna: "#ebf2e8",
+            cabang: []
+        },
+        {	
 			id: "47-XX",
             nama: "Operator Theory",
             link: "",

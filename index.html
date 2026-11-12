@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ma3 (Mathree) - MSC2020</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!-- Load the separated data file -->
     <script src="data.js"></script>
-	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         :root {
             --bg-color: #f8fafc;
             --text-color: #1e293b;
             --border-color: #e2e8f0;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            
+            /* Warna Highlight */
+            --hl-active: #eab308; /* Kuning */
+            --hl-child: #a855f7;  /* Ungu */
+            --hl-parent: #22c55e; /* Hijau */
         }
 
         body {
@@ -61,28 +65,18 @@
         }
 
         .link {
-            fill: none;
-            stroke: #cbd5e1;
-            stroke-width: 2px;
+            transition: stroke 0.3s ease, stroke-width 0.3s ease;
+        }
+        
+        .base-circle {
+            transition: fill 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease, filter 0.3s ease, r 0.2s ease, transform 0.2s ease;
+        }
+        
+        .node-text-container {
+            transition: transform 0.2s ease, filter 0.2s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, text-shadow 0.3s ease;
         }
 
-        .node circle {
-            stroke-width: 2.5px;
-        }
-
-        .node text {
-            font-family: 'Verdana', sans-serif;
-            font-size: 13px;
-            text-shadow: 0 1px 3px rgba(255,255,255,0.8);
-        }
-
-        .node a text:hover {
-            text-decoration: underline;
-            font-weight: bold;
-            cursor: pointer;
-        }
-		
-		.node-link:hover {
+        .node-link:hover {
             text-decoration: underline !important;
         }
     </style>
@@ -91,158 +85,249 @@
 
     <header>
         <h1>Ma3 (Mathree) 🌳</h1>
-        <p>Mathematics Classification Tree. Drag to pan, scroll to zoom in/out.</p>
+        <p>Mathematics Classification Tree. Unified nodes with physics collision. Click to explore branches.</p>
     </header>
 
     <div id="mathree-container"></div>
 
     <script>
         const container = document.getElementById("mathree-container");
-        const innerWidth = 1400; 
-        const innerHeight = 800;
 
         const svg = d3.select("#mathree-container")
             .append("svg")
             .attr("width", "100%")
-            .attr("height", "100%")
-            .call(d3.zoom().on("zoom", function (event) {
-                g.attr("transform", event.transform);
-            }))
-            .append("g")
-            .attr("transform", "translate(150, 300)");
+            .attr("height", "100%");
 
-        const g = svg;
-        const treeLayout = d3.tree().size([innerHeight - 200, innerWidth - 400]);
+        const g = svg.append("g");
+
+        const zoom = d3.zoom().on("zoom", function (event) {
+            g.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+
+        // Posisi awal
+        const centerX = window.innerWidth / 2;
+        const centerY = (window.innerHeight - 80) / 2;
+        svg.call(zoom.transform, d3.zoomIdentity.translate(centerX, centerY).scale(0.4));
         
-        // mscData is loaded from data.js
         const root = d3.hierarchy(mscData, d => d.cabang);
-        treeLayout(root);
+        const nodesData = root.descendants();
+        const linksData = root.links();
 
-        g.selectAll(".link")
-            .data(root.links())
-            .join("path")
-            .attr("class", "link")
-            .attr("d", d3.linkHorizontal()
-                .x(d => d.y)
-                .y(d => d.x)
-            );
+        // ==============================================
+        // 1. MESIN FISIKA (SATU KESATUAN)
+        // ==============================================
+        const simulation = d3.forceSimulation(nodesData)
+            // Jarak antar titik
+            .force("link", d3.forceLink(linksData).distance(d => d.target.children ? 180 : 250))
+            // Efek tolak-menolak agar menyebar (mengembang)
+            .force("charge", d3.forceManyBody().strength(d => d.children ? -1200 : -1000))
+            // EFEK TABRAKAN: Radius diperbesar (70 untuk pusat, 100 untuk daun) agar mencakup bola sekaligus lebar kotak teksnya
+            .force("collide", d3.forceCollide().radius(d => d.children ? 70 : 100).iterations(4))
+            .force("center", d3.forceCenter(0, 0));
 
-        const node = g.selectAll(".node")
-            .data(root.descendants())
+        // ==============================================
+        // 2. RENDER GARIS & TITIK
+        // ==============================================
+        const link = g.append("g")
+            .selectAll(".link")
+            .data(linksData)
+            .join("line")
+            .attr("class", "link");
+
+        // Membungkus bola dan teks dalam satu elemen <g> yang bisa ditarik dan diklik
+        const node = g.append("g")
+            .selectAll(".node")
+            .data(nodesData)
             .join("g")
             .attr("class", "node")
-            .attr("transform", d => `translate(${d.y},${d.x})`);
+            .style("cursor", "pointer")
+            .call(drag(simulation))
+            .on("click", function(event, d) {
+                if (event.defaultPrevented) return; // Abaikan klik jika user sedang nge-drag
+                updateHighlight(d);
+            });
 
-		// 1. BOLA MAINAN PLASTIK (Warna Solid, Shiny & Bisa Diklik)
-        // Membungkus bola dengan elemen <a> SVG
-        const ballLink = node.append("a")
-            .attr("target", "_blank")
-            // Hanya tambahkan atribut href jika data link tersedia
-            .attr("href", d => (d.data.link && d.data.link.trim() !== "") ? d.data.link : null)
-            .style("cursor", d => (d.data.link && d.data.link.trim() !== "") ? "pointer" : "default");
-
-        // Lingkaran dasar diletakkan di dalam tag <a>
-        ballLink.append("circle")
+        // ==============================================
+        // 3. ELEMEN BOLA
+        // ==============================================
+        node.append("circle")
             .attr("class", "base-circle")
-            .attr("r", 10) 
-            .style("fill", d => d.data.warna) 
-            .style("stroke", "rgba(0, 0, 0, 0.1)") 
-            .style("stroke-width", "1px")
-            .style("filter", "drop-shadow(0px 2px 4px rgba(0,0,0,0.2))");
+            .attr("r", 16) 
+            .style("stroke-width", "1.5px")
+            .style("filter", "drop-shadow(0px 3px 5px rgba(0,0,0,0.3))");
 
-        // Lingkaran pantulan cahaya juga diletakkan di dalam tag <a>
-        ballLink.append("circle")
+        node.append("circle")
             .attr("class", "highlight-circle")
-            .attr("r", 3.5)
-            .attr("cx", -3.5)
-            .attr("cy", -3.5)
+            .attr("r", 5)
+            .attr("cx", -5)
+            .attr("cy", -5)
             .style("fill", "rgba(255, 255, 255, 0.75)") 
             .style("stroke", "none")
             .style("pointer-events", "none");
 
-        // 2. LOGIKA TEKS (Termasuk MathJax & Link)
+        // ==============================================
+        // 4. ELEMEN TEKS (Menyatu di bawah bola)
+        // ==============================================
         node.each(function(d) {
             const el = d3.select(this);
-            const width = 450; 
-            const height = 40;
-            
-            // Jarak agak dijauhkan karena bola sekarang lebih besar
-            const xPos = d.children ? -(width + 18) : 18; 
-            const yPos = -20; 
+            const width = 220; 
+            const height = 100; 
 
+            // Posisi foreignObject tepat di tengah bawah bola
             const foreignObject = el.append("foreignObject")
                 .attr("width", width)
                 .attr("height", height)
-                .attr("x", xPos)
-                .attr("y", yPos)
-                .style("pointer-events", "none"); // Pointer tembus ke div
+                .attr("x", -(width / 2)) 
+                .attr("y", 22) // Jarak dekat ke bola
+                .style("pointer-events", "none"); 
 
             let div = foreignObject.append("xhtml:div")
-                .attr("class", "node-text-container") // Class ini dipakai untuk trigger hover di Javascript
                 .style("width", "100%")
                 .style("height", "100%")
                 .style("display", "flex")
-                .style("align-items", "center")
-                .style("justify-content", d.children ? "flex-end" : "flex-start")
-                .style("font-size", "14px")
+                .style("align-items", "flex-start")
+                .style("justify-content", "center") 
+                .style("pointer-events", "auto"); 
+                
+            let span = div.append("xhtml:span")
+                .attr("class", "node-text-container")
+                .style("padding", "6px 12px")
+                .style("border-radius", "8px")
+                .style("font-size", "12px") 
                 .style("font-family", "'Verdana', sans-serif")
-                .style("color", d.data.warna)
-                .style("white-space", "nowrap")
-                .style("pointer-events", "auto") // Mengizinkan pointer menangkap teks
-                .style("transform-origin", d.children ? "center right" : "center left") // Penting: agar teks membesar ke arah luar
-                .style("transition", "transform 0.2s ease, font-weight 0.2s ease"); // Transisi animasi halus
+                .style("font-weight", "600") 
+                .style("white-space", "normal") 
+                .style("width", "max-content") 
+                .style("max-width", "190px") // Lebar dibatasi agar sesuai gelembung tabrakan
+                .style("overflow-wrap", "break-word") 
+                .style("text-align", "center");
 
+            // Teks tetap memiliki link interaktif jika URL tersedia
             if (d.data.link && d.data.link.trim() !== "") {
-                div.append("xhtml:a")
+                span.append("xhtml:a")
                     .attr("href", d.data.link)
                     .attr("target", "_blank")
                     .style("text-decoration", "none")
                     .style("color", "inherit")
-                    .attr("class", "node-link") // Ini memicu garis bawah (underline) di CSS
+                    .attr("class", "node-link")
+                    // Menghentikan propagasi klik agar saat teks (link) diklik, tidak memicu highlight bola
+                    .on("click", function(e) { e.stopPropagation(); })
                     .html(d.data.nama);
             } else {
-                div.html(d.data.nama); 
+                span.html(d.data.nama); 
             }
         });
 
-        // 3. EVENT HOVER SINKRON (Bola & Teks ikut membesar)
-        node.on("mouseenter", function(event, d) {
-            const el = d3.select(this);
-            
-            // Perbesar Bola
-            el.select(".base-circle").transition().duration(200)
-              .attr("r", 15) // Ukuran bola saat hover
-              .style("filter", "drop-shadow(0px 4px 6px rgba(0,0,0,0.3))");
-              
-            // Geser & Perbesar Pantulan Cahaya
-            el.select(".highlight-circle").transition().duration(200)
-              .attr("r", 5.5).attr("cx", -5).attr("cy", -5);
-              
-            // Perbesar & Tebalkan Teks
-            el.select(".node-text-container")
-              .style("transform", "scale(1.15)") // Skala perbesaran teks
-              .style("font-weight", "bold");
-        })
-        .on("mouseleave", function(event, d) {
-            const el = d3.select(this);
-            
-            // Kembalikan Bola ke normal
-            el.select(".base-circle").transition().duration(200)
-              .attr("r", 10)
-              .style("filter", "drop-shadow(0px 2px 4px rgba(0,0,0,0.15))");
-              
-            // Kembalikan pantulan
-            el.select(".highlight-circle").transition().duration(200)
-              .attr("r", 3.5).attr("cx", -3.5).attr("cy", -3.5);
-              
-            // Kembalikan Teks ke normal
-            el.select(".node-text-container")
-              .style("transform", "scale(1)")
-              .style("font-weight", "normal");
+        // ==============================================
+        // 5. SISTEM STATE WARNA HIGHLIGHT
+        // ==============================================
+        let activeNode = null;
+
+        function updateHighlight(targetNode) {
+            activeNode = targetNode;
+
+            // Memperbarui Node (Bola & Teks)
+            node.each(function(d) {
+                const el = d3.select(this);
+                const isSelected = d === activeNode;
+                const isChild = d.parent === activeNode;
+                const isParent = activeNode.parent === d;
+                
+                const baseCircle = el.select(".base-circle");
+                const textContainer = el.select(".node-text-container");
+
+                if (isSelected || isChild || isParent) {
+                    let hlColor = isSelected ? "var(--hl-active)" : (isChild ? "var(--hl-child)" : "var(--hl-parent)");
+                    
+                    // Style Bola Aktif
+                    baseCircle
+                        .style("fill", d.data.warna)
+                        .style("stroke", hlColor)
+                        .style("stroke-width", isSelected ? "5px" : "3.5px");
+
+                    // Style Teks Aktif
+                    const textShadowStr = "-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0px 2px 4px rgba(0,0,0,0.6)";
+                    textContainer
+                        .style("background-color", d.data.warna)
+                        .style("color", "#ffffff")
+                        .style("text-shadow", textShadowStr) 
+                        .style("box-shadow", `0 0 0 4px ${hlColor}, 0 4px 8px rgba(0,0,0,0.4)`); 
+                } else {
+                    // Style Redup (Muted)
+                    baseCircle
+                        .style("fill", "#cbd5e1")
+                        .style("stroke", "#94a3b8")
+                        .style("stroke-width", "1.5px");
+
+                    textContainer
+                        .style("background-color", "#e2e8f0") 
+                        .style("color", "#0f172a") 
+                        .style("text-shadow", "none")
+                        .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)");
+                }
+            });
+
+            // Memperbarui Sisi Penghubung (Links)
+            link.each(function(l) {
+                const el = d3.select(this);
+                if (l.source === activeNode) {
+                    el.style("stroke", "var(--hl-child)").style("stroke-width", "3.5px");
+                } else if (l.target === activeNode) {
+                    el.style("stroke", "var(--hl-parent)").style("stroke-width", "3.5px");
+                } else {
+                    el.style("stroke", "#e2e8f0").style("stroke-width", "1.5px");
+                }
+            });
+        }
+
+        // ==============================================
+        // 6. ANIMASI MESIN FISIKA (TICK)
+        // ==============================================
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node.attr("transform", d => `translate(${d.x}, ${d.y})`);
         });
-		if (window.MathJax) {
-			MathJax.typesetPromise();
-		}	
+
+        // Kontrol Dragging
+        function drag(simulation) {
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x; d.fy = d.y;
+            }
+            function dragged(event, d) {
+                d.fx = event.x; d.fy = event.y;
+            }
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null; d.fy = null;
+            }
+            return d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended);
+        }
+
+        // Hover Effect
+        node.on("mouseenter", function() {
+            d3.select(this).select(".base-circle").style("transform", "scale(1.2)");
+            d3.select(this).select(".node-text-container").style("transform", "scale(1.1)");
+        }).on("mouseleave", function() {
+            d3.select(this).select(".base-circle").style("transform", "scale(1)");
+            d3.select(this).select(".node-text-container").style("transform", "scale(1)");
+        });
+
+        // Inisialisasi: Pilih pusat pertama kali
+        updateHighlight(root);
+
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }	
     </script>
 </body>
 </html>

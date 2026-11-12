@@ -217,6 +217,13 @@ const mscData = {
             cabang: []
         },
         {	
+			id: "41-XX",
+            nama: "Approximations and Expansions",
+            link: "",
+            warna: "#5c6855",
+            cabang: []
+        },
+        {	
 			id: "47-XX",
             nama: "Operator Theory",
             link: "",

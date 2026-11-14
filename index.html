@@ -1,11 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ma3 (Mathree) - MSC2020</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="data.js"></script>
+    <script>
+        const pendingMathElements = [];
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            startup: {
+                typeset: false,
+                ready() {
+                    MathJax.startup.defaultReady();
+                    if (pendingMathElements.length > 0) {
+                        const batch = pendingMathElements.splice(0, pendingMathElements.length);
+                        MathJax.typesetPromise(batch).catch(err => console.warn("MathJax warning:", err));
+                    }
+                }
+            }
+        };
+    </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         :root {
@@ -13,7 +32,7 @@
             --text-color: #1e293b;
             --border-color: #e2e8f0;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            
+
             /* Warna Highlight */
             --hl-active: #eab308; /* Kuning */
             --hl-child: #a855f7;  /* Ungu */
@@ -34,7 +53,7 @@
 
         header {
             background-color: #ffffff;
-            padding: 1.25rem 2rem;
+            padding: 0.85rem 2rem;
             border-bottom: 1px solid var(--border-color);
             box-shadow: var(--shadow);
             z-index: 10;
@@ -42,14 +61,8 @@
 
         header h1 {
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 1.45rem;
             font-weight: 600;
-        }
-
-        header p {
-            margin: 0.25rem 0 0 0;
-            font-size: 0.9rem;
-            color: #64748b;
         }
 
         #mathree-container {
@@ -65,19 +78,61 @@
         }
 
         .link {
-            transition: stroke 0.3s ease, stroke-width 0.3s ease;
+            transition: stroke 0.25s ease, stroke-width 0.25s ease;
         }
-        
+
         .base-circle {
-            transition: fill 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease, filter 0.3s ease, r 0.2s ease, transform 0.2s ease;
+            transition: fill 0.25s ease, stroke 0.25s ease, stroke-width 0.25s ease, transform 0.2s ease;
         }
-        
+
+        .base-circle.is-highlighted {
+            filter: drop-shadow(0px 3px 5px rgba(0, 0, 0, 0.35));
+        }
+
         .node-text-container {
-            transition: transform 0.2s ease, filter 0.2s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, text-shadow 0.3s ease;
+            transition: transform 0.2s ease, background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
         }
 
         .node-link:hover {
             text-decoration: underline !important;
+        }
+
+        /* Semantic Zoom: saat diperkecil jauh, sembunyikan kotak teks pasif agar tetap ringan */
+        svg.zoomed-far .node:not(.is-important) .node-fo {
+            display: none;
+        }
+
+        /* Tombol navigasi ringkas di pojok kanan bawah */
+        .zoom-fab {
+            position: absolute;
+            right: 18px;
+            bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 15;
+        }
+
+        .zoom-fab button {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.15s, transform 0.15s;
+        }
+
+        .zoom-fab button:hover {
+            background-color: #f1f5f9;
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -85,13 +140,18 @@
 
     <header>
         <h1>Ma3 (Mathree) 🌳</h1>
-        <p>Mathematics Classification Tree. Unified nodes with physics collision. Click to explore branches.</p>
     </header>
 
-    <div id="mathree-container"></div>
+    <div id="mathree-container">
+        <div class="zoom-fab">
+            <button id="fab-zoom-in" type="button" title="Perbesar (Zoom In)">+</button>
+            <button id="fab-zoom-out" type="button" title="Perkecil (Zoom Out)">−</button>
+            <button id="fab-center" type="button" title="Kembali ke Pusat Mathematics">⌂</button>
+        </div>
+    </div>
 
     <script>
-        const container = document.getElementById("mathree-container");
+        const containerEl = document.getElementById("mathree-container");
 
         const svg = d3.select("#mathree-container")
             .append("svg")
@@ -99,213 +159,679 @@
             .attr("height", "100%");
 
         const g = svg.append("g");
+        const linkLayer = g.append("g").attr("class", "links-layer");
+        const nodeLayer = g.append("g").attr("class", "nodes-layer");
 
-        const zoom = d3.zoom().on("zoom", function (event) {
-            g.attr("transform", event.transform);
-        });
+        let currentTransform = d3.zoomIdentity;
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.05, 4])
+            .on("zoom", function (event) {
+                currentTransform = event.transform;
+                g.attr("transform", event.transform);
+
+                // Semantic Zoom: saat di-zoom out jauh (k < 0.3), sembunyikan label teks pasif
+                svg.classed("zoomed-far", event.transform.k < 0.3);
+            });
         svg.call(zoom);
 
-        // Posisi awal
-        const centerX = window.innerWidth / 2;
-        const centerY = (window.innerHeight - 80) / 2;
-        svg.call(zoom.transform, d3.zoomIdentity.translate(centerX, centerY).scale(0.4));
-        
+        function getViewportCenter() {
+            const rect = containerEl.getBoundingClientRect();
+            return {
+                cx: (rect.width || window.innerWidth) / 2,
+                cy: (rect.height || (window.innerHeight - 60)) / 2
+            };
+        }
+
+        function focusCameraOn(x, y, targetScale = null, duration = 550) {
+            const { cx, cy } = getViewportCenter();
+            const scale = targetScale !== null ? targetScale : currentTransform.k;
+            const tx = cx - x * scale;
+            const ty = cy - y * scale;
+
+            svg.transition()
+                .duration(duration)
+                .ease(d3.easeCubicOut)
+                .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+        }
+
+        // ==============================================
+        // 1. PERSIAPAN HIERARKI & POSISI AWAL STABIL
+        // ==============================================
         const root = d3.hierarchy(mscData, d => d.cabang);
-        const nodesData = root.descendants();
-        const linksData = root.links();
 
-        // ==============================================
-        // 1. MESIN FISIKA (SATU KESATUAN)
-        // ==============================================
-        const simulation = d3.forceSimulation(nodesData)
-            // Jarak antar titik
-            .force("link", d3.forceLink(linksData).distance(d => d.target.children ? 180 : 250))
-            // Efek tolak-menolak agar menyebar (mengembang)
-            .force("charge", d3.forceManyBody().strength(d => d.children ? -1200 : -1000))
-            // EFEK TABRAKAN: Radius diperbesar (70 untuk pusat, 100 untuk daun) agar mencakup bola sekaligus lebar kotak teksnya
-            .force("collide", d3.forceCollide().radius(d => d.children ? 70 : 100).iterations(4))
-            .force("center", d3.forceCenter(0, 0));
+        function collapseDeep(d) {
+            if (d.children) {
+                d._children = d.children;
+                d._children.forEach(collapseDeep);
+                d.children = null;
+            }
+        }
+        if (root.children) {
+            root.children.forEach(collapseDeep);
+        }
 
-        // ==============================================
-        // 2. RENDER GARIS & TITIK
-        // ==============================================
-        const link = g.append("g")
-            .selectAll(".link")
-            .data(linksData)
-            .join("line")
-            .attr("class", "link");
+        root.x = 0;
+        root.y = 0;
+        root.homeX = 0;
+        root.homeY = 0;
+        root.fx = 0;
+        root.fy = 0;
 
-        // Membungkus bola dan teks dalam satu elemen <g> yang bisa ditarik dan diklik
-        const node = g.append("g")
-            .selectAll(".node")
-            .data(nodesData)
-            .join("g")
-            .attr("class", "node")
-            .style("cursor", "pointer")
-            .call(drag(simulation))
-            .on("click", function(event, d) {
-                if (event.defaultPrevented) return; // Abaikan klik jika user sedang nge-drag
-                updateHighlight(d);
+        if (root.children) {
+            const count = root.children.length;
+            root.children.forEach((child, i) => {
+                const angle = (2 * Math.PI * i) / count - Math.PI / 2;
+                const radius = (i % 2 === 0) ? 520 : 730;
+                child.x = Math.cos(angle) * radius;
+                child.y = Math.sin(angle) * radius;
             });
 
-        // ==============================================
-        // 3. ELEMEN BOLA
-        // ==============================================
-        node.append("circle")
-            .attr("class", "base-circle")
-            .attr("r", 16) 
-            .style("stroke-width", "1.5px")
-            .style("filter", "drop-shadow(0px 3px 5px rgba(0,0,0,0.3))");
+            const initSim = d3.forceSimulation(root.descendants())
+                .force("collide", d3.forceCollide().radius(82).iterations(3))
+                .force("radial", d3.forceRadial(d => d === root ? 0 : 620, 0, 0).strength(0.25))
+                .stop();
 
-        node.append("circle")
-            .attr("class", "highlight-circle")
-            .attr("r", 5)
-            .attr("cx", -5)
-            .attr("cy", -5)
-            .style("fill", "rgba(255, 255, 255, 0.75)") 
-            .style("stroke", "none")
-            .style("pointer-events", "none");
+            for (let i = 0; i < 90; i++) initSim.tick();
 
-        // ==============================================
-        // 4. ELEMEN TEKS (Menyatu di bawah bola)
-        // ==============================================
-        node.each(function(d) {
-            const el = d3.select(this);
-            const width = 220; 
-            const height = 100; 
-
-            // Posisi foreignObject tepat di tengah bawah bola
-            const foreignObject = el.append("foreignObject")
-                .attr("width", width)
-                .attr("height", height)
-                .attr("x", -(width / 2)) 
-                .attr("y", 22) // Jarak dekat ke bola
-                .style("pointer-events", "none"); 
-
-            let div = foreignObject.append("xhtml:div")
-                .style("width", "100%")
-                .style("height", "100%")
-                .style("display", "flex")
-                .style("align-items", "flex-start")
-                .style("justify-content", "center") 
-                .style("pointer-events", "auto"); 
-                
-            let span = div.append("xhtml:span")
-                .attr("class", "node-text-container")
-                .style("padding", "6px 12px")
-                .style("border-radius", "8px")
-                .style("font-size", "12px") 
-                .style("font-family", "'Verdana', sans-serif")
-                .style("font-weight", "600") 
-                .style("white-space", "normal") 
-                .style("width", "max-content") 
-                .style("max-width", "190px") // Lebar dibatasi agar sesuai gelembung tabrakan
-                .style("overflow-wrap", "break-word") 
-                .style("text-align", "center");
-
-            // Teks tetap memiliki link interaktif jika URL tersedia
-            if (d.data.link && d.data.link.trim() !== "") {
-                span.append("xhtml:a")
-                    .attr("href", d.data.link)
-                    .attr("target", "_blank")
-                    .style("text-decoration", "none")
-                    .style("color", "inherit")
-                    .attr("class", "node-link")
-                    // Menghentikan propagasi klik agar saat teks (link) diklik, tidak memicu highlight bola
-                    .on("click", function(e) { e.stopPropagation(); })
-                    .html(d.data.nama);
-            } else {
-                span.html(d.data.nama); 
-            }
-        });
-
-        // ==============================================
-        // 5. SISTEM STATE WARNA HIGHLIGHT
-        // ==============================================
-        let activeNode = null;
-
-        function updateHighlight(targetNode) {
-            activeNode = targetNode;
-
-            // Memperbarui Node (Bola & Teks)
-            node.each(function(d) {
-                const el = d3.select(this);
-                const isSelected = d === activeNode;
-                const isChild = d.parent === activeNode;
-                const isParent = activeNode.parent === d;
-                
-                const baseCircle = el.select(".base-circle");
-                const textContainer = el.select(".node-text-container");
-
-                if (isSelected || isChild || isParent) {
-                    let hlColor = isSelected ? "var(--hl-active)" : (isChild ? "var(--hl-child)" : "var(--hl-parent)");
-                    
-                    // Style Bola Aktif
-                    baseCircle
-                        .style("fill", d.data.warna)
-                        .style("stroke", hlColor)
-                        .style("stroke-width", isSelected ? "5px" : "3.5px");
-
-                    // Style Teks Aktif
-                    const textShadowStr = "-1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0px 2px 4px rgba(0,0,0,0.6)";
-                    textContainer
-                        .style("background-color", d.data.warna)
-                        .style("color", "#ffffff")
-                        .style("text-shadow", textShadowStr) 
-                        .style("box-shadow", `0 0 0 4px ${hlColor}, 0 4px 8px rgba(0,0,0,0.4)`); 
+            root.x = 0;
+            root.y = 0;
+            root.descendants().forEach(n => {
+                n.homeX = n.x;
+                n.homeY = n.y;
+                n.targetX = n.x;
+                n.targetY = n.y;
+                n.isHighlighted = (n === root || n.parent === root);
+                if (n === root || !n.isHighlighted) {
+                    n.fx = n.x;
+                    n.fy = n.y;
                 } else {
-                    // Style Redup (Muted)
-                    baseCircle
-                        .style("fill", "#cbd5e1")
-                        .style("stroke", "#94a3b8")
-                        .style("stroke-width", "1.5px");
+                    n.fx = null;
+                    n.fy = null;
+                }
+            });
+        }
 
-                    textContainer
-                        .style("background-color", "#e2e8f0") 
-                        .style("color", "#0f172a") 
-                        .style("text-shadow", "none")
-                        .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)");
+        // ==============================================
+        // 2. RENDER MATHJAX PER-NODE BARU
+        // ==============================================
+        function renderMathJax(elements) {
+            if (!elements || elements.length === 0) return;
+            if (window.MathJax && typeof MathJax.typesetPromise === "function" && MathJax.startup && MathJax.startup.promise) {
+                MathJax.startup.promise = MathJax.startup.promise
+                    .then(() => MathJax.typesetPromise(elements))
+                    .catch(err => console.warn("MathJax warning:", err));
+            } else {
+                pendingMathElements.push(...elements);
+            }
+        }
+
+        // ==============================================
+        // 3. MESIN FISIKA (HANYA UNTUK TITIK YANG TERHIGHLIGHT)
+        // ==============================================
+        let activeNode = root;
+        let activeOutwardDir = { x: 0, y: -1 };
+        let isDraggingHighlighted = false;
+
+        function getChildOrbitDistance(parentNode) {
+            const count = parentNode && parentNode.children ? parentNode.children.length : 1;
+            return 250 + Math.min(count * 7, 260);
+        }
+
+        const simulation = d3.forceSimulation()
+            .alphaDecay(0.032)
+            .velocityDecay(0.42)
+            .force("link", d3.forceLink()
+                .id(d => d.data.id || d.data.nama)
+                .distance(l => {
+                    if (l.target === activeNode && l.target.extendedLinkDist) {
+                        return l.target.extendedLinkDist;
+                    }
+                    if (l.source === activeNode) {
+                        return getChildOrbitDistance(activeNode);
+                    }
+                    return 600;
+                })
+                .strength(l => (l.source.isHighlighted && l.target.isHighlighted) ? 0.85 : 0)
+            )
+            .force("charge", d3.forceManyBody()
+                .theta(0.9)
+                .strength(d => d.isHighlighted ? -440 : -35)
+            )
+            .force("collide", d3.forceCollide()
+                .radius(d => d.isHighlighted ? 104 : 76)
+                .iterations(4)
+            )
+            .force("radialRoot", d3.forceRadial(600, 0, 0)
+                .strength(d => (activeNode === root && d.parent === root) ? 0.18 : 0)
+            )
+            // Menjaga titik aktif tetap berada di luar lingkaran utama & mendorong anak-anaknya mekar ke sisi luar
+            .force("outwardZone", function(alpha) {
+                if (activeNode === root) return;
+
+                // 1. Pegas lembut menjaga titik aktif tetap di posisi luar tujuannya (kecuali saat sedang di-drag manual)
+                if (!isDraggingHighlighted && activeNode.targetX !== undefined && activeNode.targetY !== undefined) {
+                    const spring = 0.22 * alpha;
+                    activeNode.vx += (activeNode.targetX - activeNode.x) * spring;
+                    activeNode.vy += (activeNode.targetY - activeNode.y) * spring;
+                }
+
+                // 2. Dorongan halus ke arah luar bagi anak-anak dari titik aktif agar mekar di sisi luar, bukan masuk ke dalam ring
+                const childOutward = 16 * alpha;
+                simulation.nodes().forEach(n => {
+                    if (n.isHighlighted && n.parent === activeNode && n !== root) {
+                        n.vx += activeOutwardDir.x * childOutward;
+                        n.vy += activeOutwardDir.y * childOutward;
+                    }
+                });
+            })
+            .stop();
+
+        // Sinkronkan status physics: hanya titik yang terhighlight (selain pusat root) yang bebas bergerak
+        function syncPhysicsWithHighlight() {
+            const nodesData = root.descendants();
+            const linksData = root.links();
+
+            nodesData.forEach(n => {
+                const isSelected = (n === activeNode);
+                const isChild = (n.parent === activeNode);
+                const isParent = (activeNode && activeNode.parent === n);
+                n.isHighlighted = Boolean(isSelected || isChild || isParent);
+
+                if (n === root) {
+                    n.x = 0;
+                    n.y = 0;
+                    n.fx = 0;
+                    n.fy = 0;
+                    n.vx = 0;
+                    n.vy = 0;
+                } else if (n.isHighlighted) {
+                    n.fx = null;
+                    n.fy = null;
+                } else {
+                    n.fx = n.x;
+                    n.fy = n.y;
+                    n.vx = 0;
+                    n.vy = 0;
                 }
             });
 
-            // Memperbarui Sisi Penghubung (Links)
-            link.each(function(l) {
+            simulation.nodes(nodesData);
+            simulation.force("link").links(linksData);
+        }
+
+        let linkSelection = linkLayer.selectAll(".link");
+        let nodeSelection = nodeLayer.selectAll(".node");
+
+        // ==============================================
+        // 4. UPDATE DOM GRAF (ENTER / UPDATE / EXIT)
+        // ==============================================
+        function updateGraph(sourceNode = root, restartAlpha = 0.55) {
+            const nodesData = root.descendants();
+            const linksData = root.links();
+
+            // --- GARIS ---
+            linkSelection = linkLayer
+                .selectAll(".link")
+                .data(linksData, d => `${d.source.data.id || d.source.data.nama}->${d.target.data.id || d.target.data.nama}`)
+                .join(
+                    enter => {
+                        const l = enter.append("line")
+                            .attr("class", "link")
+                            .attr("x1", sourceNode.x || 0)
+                            .attr("y1", sourceNode.y || 0)
+                            .attr("x2", sourceNode.x || 0)
+                            .attr("y2", sourceNode.y || 0)
+                            .style("opacity", 0);
+                        l.transition().duration(350).style("opacity", 1);
+                        return l;
+                    },
+                    update => update,
+                    exit => exit.transition().duration(250).style("opacity", 0).remove()
+                );
+
+            // --- TITIK (NODES) ---
+            const latexElements = [];
+
+            nodeSelection = nodeLayer
+                .selectAll(".node")
+                .data(nodesData, d => d.data.id || d.data.nama)
+                .join(
+                    enter => {
+                        const nodeEnter = enter.append("g")
+                            .attr("class", "node")
+                            .attr("transform", d => `translate(${d.x}, ${d.y}) scale(0.15)`)
+                            .style("opacity", 0)
+                            .style("cursor", "pointer")
+                            .call(drag(simulation))
+                            .on("click", function(event, d) {
+                                if (event.defaultPrevented) return;
+                                handleNodeClick(d);
+                            })
+                            .on("mouseenter", function() {
+                                d3.select(this).select(".base-circle").style("transform", "scale(1.2)");
+                                d3.select(this).select(".node-text-container").style("transform", "scale(1.08)");
+                            })
+                            .on("mouseleave", function() {
+                                d3.select(this).select(".base-circle").style("transform", "scale(1)");
+                                d3.select(this).select(".node-text-container").style("transform", "scale(1)");
+                            });
+
+                        nodeEnter.transition()
+                            .duration(380)
+                            .ease(d3.easeCubicOut)
+                            .style("opacity", 1)
+                            .attr("transform", d => `translate(${d.x}, ${d.y}) scale(1)`);
+
+                        nodeEnter.append("title")
+                            .text(d => d.data.nama);
+
+                        nodeEnter.append("circle")
+                            .attr("class", "base-circle")
+                            .attr("r", d => (d.children || d._children) ? 18 : 14)
+                            .style("stroke-width", "1.5px");
+
+                        nodeEnter.append("circle")
+                            .attr("class", "highlight-circle")
+                            .attr("r", 4.5)
+                            .attr("cx", -5)
+                            .attr("cy", -5)
+                            .style("fill", "rgba(255, 255, 255, 0.75)")
+                            .style("pointer-events", "none");
+
+                        // Penanda jumlah anak (+N) jika masih tertutup
+                        nodeEnter.append("text")
+                            .attr("class", "expand-badge")
+                            .attr("text-anchor", "middle")
+                            .attr("dy", "0.35em")
+                            .style("font-size", "9px")
+                            .style("font-weight", "700")
+                            .style("fill", "#ffffff")
+                            .style("text-shadow", "0 1px 2px rgba(0,0,0,0.85)")
+                            .style("pointer-events", "none");
+
+                        // Kotak judul topik + MathJax di bawah bola
+                        nodeEnter.each(function(d) {
+                            const el = d3.select(this);
+                            const width = 220;
+                            const height = 110;
+
+                            const foreignObject = el.append("foreignObject")
+                                .attr("class", "node-fo")
+                                .attr("width", width)
+                                .attr("height", height)
+                                .attr("x", -(width / 2))
+                                .attr("y", 22)
+                                .style("pointer-events", "none");
+
+                            const div = foreignObject.append("xhtml:div")
+                                .style("width", "100%")
+                                .style("height", "100%")
+                                .style("display", "flex")
+                                .style("align-items", "flex-start")
+                                .style("justify-content", "center")
+                                .style("pointer-events", "auto");
+
+                            const span = div.append("xhtml:span")
+                                .attr("class", "node-text-container")
+                                .style("padding", "5px 10px")
+                                .style("border-radius", "8px")
+                                .style("font-size", "11.5px")
+                                .style("font-family", "'Verdana', sans-serif")
+                                .style("font-weight", "600")
+                                .style("white-space", "normal")
+                                .style("width", "max-content")
+                                .style("max-width", "190px")
+                                .style("overflow-wrap", "break-word")
+                                .style("text-align", "center");
+
+                            const displayLabel = d.data.nama;
+
+                            if (d.data.link && d.data.link.trim() !== "") {
+                                span.append("xhtml:a")
+                                    .attr("href", d.data.link)
+                                    .attr("target", "_blank")
+                                    .style("text-decoration", "none")
+                                    .style("color", "inherit")
+                                    .attr("class", "node-link")
+                                    .on("click", function(e) { e.stopPropagation(); })
+                                    .html(displayLabel);
+                            } else {
+                                span.html(displayLabel);
+                            }
+
+                            if (
+                                displayLabel.includes("\(") ||
+                                displayLabel.includes("\[") ||
+                                displayLabel.includes("$")
+                            ) {
+                                latexElements.push(span.node());
+                            }
+                        });
+
+                        return nodeEnter;
+                    },
+                    update => update,
+                    exit => exit.transition().duration(250).style("opacity", 0).remove()
+                );
+
+            nodeSelection.select(".expand-badge")
+                .text(d => {
+                    if (d._children && d._children.length > 0) return `+${d._children.length}`;
+                    if (d.children && d.children.length > 0 && d !== root) return "−";
+                    return "";
+                });
+
+            if (latexElements.length > 0) {
+                renderMathJax(latexElements);
+            }
+
+            updateHighlight(activeNode);
+            syncPhysicsWithHighlight();
+
+            if (restartAlpha > 0) {
+                simulation.alpha(restartAlpha).restart();
+            } else {
+                renderPositions();
+            }
+        }
+
+        function renderPositions() {
+            linkSelection
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            nodeSelection
+                .attr("transform", d => `translate(${d.x}, ${d.y})`);
+        }
+
+        simulation.on("tick", renderPositions);
+
+        // ==============================================
+        // 5. ANIMASI MULUS: KELUAR JAUH KE LUAR LINGKARAN + KAMERA MENGIKUTI + MEKAR ANAK
+        // ==============================================
+        let isAnimatingNode = false;
+
+        function animateNodePosition(targetNode, destX, destY, duration = 450, onComplete = null) {
+            isAnimatingNode = true;
+            const startX = targetNode.x;
+            const startY = targetNode.y;
+            const interpX = d3.interpolateNumber(startX, destX);
+            const interpY = d3.interpolateNumber(startY, destY);
+
+            const timer = d3.timer(elapsed => {
+                const t = Math.min(1, elapsed / duration);
+                const eased = d3.easeCubicOut(t);
+                const nx = interpX(eased);
+                const ny = interpY(eased);
+
+                targetNode.x = nx;
+                targetNode.y = ny;
+                targetNode.fx = nx;
+                targetNode.fy = ny;
+
+                renderPositions();
+
+                if (t >= 1) {
+                    timer.stop();
+                    isAnimatingNode = false;
+                    if (onComplete) onComplete();
+                }
+            });
+        }
+
+        function handleNodeClick(d) {
+            if (isAnimatingNode) return;
+
+            // Klik pusat Mathematics
+            if (d === root) {
+                activeNode = root;
+                updateHighlight(root);
+                syncPhysicsWithHighlight();
+                simulation.alpha(0.35).restart();
+                focusCameraOn(0, 0, 0.42, 600);
+                return;
+            }
+
+            // KASUS 1: Node memiliki anak tersembunyi -> Dorong keluar jauh melampaui lingkaran utama + kamera ikuti
+            if (d._children && d._children.length > 0) {
+                simulation.stop();
+
+                // Bekukan sementara seluruh node saat node ini bergerak keluar
+                root.descendants().forEach(n => {
+                    n.fx = n.x;
+                    n.fy = n.y;
+                    n.vx = 0;
+                    n.vy = 0;
+                });
+
+                // Otomatis tutup cabang saudara lain agar tampilan tetap lapang & fokus
+                if (d.parent && d.parent.children) {
+                    d.parent.children.forEach(sibling => {
+                        if (sibling !== d && sibling.children) {
+                            collapseDeep(sibling);
+                            sibling.extendedLinkDist = null;
+                            if (sibling.homeX !== undefined && sibling.homeY !== undefined) {
+                                sibling.x = sibling.homeX;
+                                sibling.y = sibling.homeY;
+                                sibling.fx = sibling.homeX;
+                                sibling.fy = sibling.homeY;
+                                sibling.targetX = sibling.homeX;
+                                sibling.targetY = sibling.homeY;
+                            }
+                        }
+                    });
+                }
+
+                // Hitung arah radial keluar dari pusat (0,0) agar benar-benar menjauh keluar dari lingkaran dalam
+                let rx = d.x;
+                let ry = d.y;
+                let rDist = Math.hypot(rx, ry);
+                if (rDist < 1) {
+                    rx = 0;
+                    ry = -1;
+                    rDist = 1;
+                }
+                const ux = rx / rDist;
+                const uy = ry / rDist;
+                activeOutwardDir = { x: ux, y: uy };
+
+                const childCount = d._children.length;
+                const childOrbit = 250 + Math.min(childCount * 7, 260);
+
+                // Pastikan jarak keluar melampaui lingkaran utama (radius ~760) ditambah ruang orbit anak-anaknya
+                let destX, destY;
+                if (d.depth === 1) {
+                    const targetRadius = Math.max(rDist + 760, 780 + childOrbit + 220);
+                    destX = ux * targetRadius;
+                    destY = uy * targetRadius;
+                } else {
+                    const extraOut = 680 + Math.min(childCount * 8, 280);
+                    destX = d.x + ux * extraOut;
+                    destY = d.y + uy * extraOut;
+                }
+
+                d.targetX = destX;
+                d.targetY = destY;
+                const parentPos = d.parent ? { x: d.parent.x, y: d.parent.y } : { x: 0, y: 0 };
+                d.extendedLinkDist = Math.hypot(destX - parentPos.x, destY - parentPos.y);
+
+                activeNode = d;
+                updateGraph(d, 0);
+
+                // Kamera mengikuti titik tersebut sebagai pusat penglihatan
+                const targetScale = childCount > 18 ? 0.56 : (d.depth === 1 ? 0.65 : 0.72);
+                focusCameraOn(destX, destY, targetScale, 540);
+
+                // Gerakkan titik keluar dengan mulus, lalu mekarkan anak-anaknya dengan physics aktif
+                animateNodePosition(d, destX, destY, 450, () => {
+                    const baseAngle = Math.atan2(uy, ux);
+                    const childrenList = d._children;
+                    const count = childrenList.length;
+                    const fanSpread = Math.min(Math.PI * 1.15, Math.max(0.65, count * 0.16));
+
+                    childrenList.forEach((child, idx) => {
+                        const offsetAngle = count === 1
+                            ? baseAngle
+                            : baseAngle - fanSpread / 2 + (fanSpread * idx) / (count - 1);
+
+                        child.x = d.x + Math.cos(offsetAngle) * 55;
+                        child.y = d.y + Math.sin(offsetAngle) * 55;
+                        child.vx = Math.cos(offsetAngle) * 8;
+                        child.vy = Math.sin(offsetAngle) * 8;
+                        child.fx = null;
+                        child.fy = null;
+                    });
+
+                    d.children = childrenList;
+                    d._children = null;
+
+                    updateGraph(d, 0.78);
+                });
+
+            // KASUS 2: Node sudah terbuka & diklik ulang -> Tutup cabangnya dan kembalikan ke posisi semula
+            } else if (d.children && d.children.length > 0 && activeNode === d) {
+                simulation.stop();
+                collapseDeep(d);
+                d.extendedLinkDist = null;
+                activeNode = d.parent || root;
+                updateGraph(d, 0);
+
+                const backX = d.homeX !== undefined ? d.homeX : d.x;
+                const backY = d.homeY !== undefined ? d.homeY : d.y;
+                d.targetX = backX;
+                d.targetY = backY;
+
+                focusCameraOn(backX, backY, d.depth === 1 ? 0.48 : 0.68, 480);
+                animateNodePosition(d, backX, backY, 420, () => {
+                    syncPhysicsWithHighlight();
+                    simulation.alpha(0.35).restart();
+                });
+
+            // KASUS 3: Node daun atau cabang lain -> Highlight & aktifkan physics hanya pada gugus terhighlight
+            } else {
+                activeNode = d;
+                if (d.targetX === undefined) {
+                    d.targetX = d.x;
+                    d.targetY = d.y;
+                }
+                updateHighlight(d);
+                syncPhysicsWithHighlight();
+                simulation.alpha(0.35).restart();
+
+                const targetScale = Math.max(currentTransform.k, 0.72);
+                focusCameraOn(d.x, d.y, targetScale, 480);
+            }
+        }
+
+        // ==============================================
+        // 6. HIGHLIGHT WARNA (KUNING = AKTIF, UNGU = ANAK, HIJAU = INDUK)
+        // ==============================================
+        function updateHighlight(targetNode) {
+            activeNode = targetNode;
+
+            nodeSelection
+                .classed("is-important", d =>
+                    d === activeNode ||
+                    d.parent === activeNode ||
+                    (activeNode && activeNode.parent === d) ||
+                    d === root
+                )
+                .each(function(d) {
+                    const el = d3.select(this);
+                    const isSelected = d === activeNode;
+                    const isChild = d.parent === activeNode;
+                    const isParent = activeNode && activeNode.parent === d;
+
+                    const baseCircle = el.select(".base-circle");
+                    const textContainer = el.select(".node-text-container");
+
+                    if (isSelected || isChild || isParent) {
+                        const hlColor = isSelected
+                            ? "var(--hl-active)"
+                            : (isChild ? "var(--hl-child)" : "var(--hl-parent)");
+
+                        baseCircle
+                            .classed("is-highlighted", true)
+                            .style("fill", d.data.warna)
+                            .style("stroke", hlColor)
+                            .style("stroke-width", isSelected ? "5px" : "3.5px");
+
+                        const textShadowStr = "-1.2px -1.2px 0 #000, 1.2px -1.2px 0 #000, -1.2px 1.2px 0 #000, 1.2px 1.2px 0 #000";
+                        textContainer
+                            .style("background-color", d.data.warna)
+                            .style("color", "#ffffff")
+                            .style("text-shadow", textShadowStr)
+                            .style("box-shadow", `0 0 0 3.5px ${hlColor}, 0 4px 8px rgba(0,0,0,0.35)`);
+                    } else {
+                        baseCircle
+                            .classed("is-highlighted", false)
+                            .style("fill", d.data.warna || "#cbd5e1")
+                            .style("stroke", "#64748b")
+                            .style("stroke-width", "1.5px");
+
+                        textContainer
+                            .style("background-color", "#e2e8f0")
+                            .style("color", "#0f172a")
+                            .style("text-shadow", "none")
+                            .style("box-shadow", "0 1px 3px rgba(0,0,0,0.1)");
+                    }
+                });
+
+            linkSelection.each(function(l) {
                 const el = d3.select(this);
                 if (l.source === activeNode) {
                     el.style("stroke", "var(--hl-child)").style("stroke-width", "3.5px");
                 } else if (l.target === activeNode) {
                     el.style("stroke", "var(--hl-parent)").style("stroke-width", "3.5px");
                 } else {
-                    el.style("stroke", "#e2e8f0").style("stroke-width", "1.5px");
+                    el.style("stroke", "#cbd5e1").style("stroke-width", "1.5px");
                 }
             });
         }
 
         // ==============================================
-        // 6. ANIMASI MESIN FISIKA (TICK)
+        // 7. DRAG MANUAL
         // ==============================================
-        simulation.on("tick", () => {
-            link
-                .attr("x1", d => d.source.x)
-                .attr("y1", d => d.source.y)
-                .attr("x2", d => d.target.x)
-                .attr("y2", d => d.target.y);
-
-            node.attr("transform", d => `translate(${d.x}, ${d.y})`);
-        });
-
-        // Kontrol Dragging
-        function drag(simulation) {
+        function drag(sim) {
             function dragstarted(event, d) {
-                if (!event.active) simulation.alphaTarget(0.3).restart();
-                d.fx = d.x; d.fy = d.y;
+                if (d === root) return;
+                if (d.isHighlighted) {
+                    isDraggingHighlighted = true;
+                    if (!event.active) sim.alphaTarget(0.25).restart();
+                }
+                d.fx = d.x;
+                d.fy = d.y;
             }
             function dragged(event, d) {
-                d.fx = event.x; d.fy = event.y;
+                if (d === root) return;
+                d.x = event.x;
+                d.y = event.y;
+                d.fx = event.x;
+                d.fy = event.y;
+                if (d === activeNode) {
+                    d.targetX = event.x;
+                    d.targetY = event.y;
+                    const pPos = d.parent ? { x: d.parent.x, y: d.parent.y } : { x: 0, y: 0 };
+                    d.extendedLinkDist = Math.hypot(event.x - pPos.x, event.y - pPos.y);
+                }
+                if (!d.isHighlighted) {
+                    renderPositions();
+                }
             }
             function dragended(event, d) {
-                if (!event.active) simulation.alphaTarget(0);
-                d.fx = null; d.fy = null;
+                if (d === root) return;
+                isDraggingHighlighted = false;
+                if (d.isHighlighted) {
+                    if (!event.active) sim.alphaTarget(0);
+                    d.fx = null;
+                    d.fy = null;
+                } else {
+                    d.fx = d.x;
+                    d.fy = d.y;
+                }
             }
             return d3.drag()
                 .on("start", dragstarted)
@@ -313,21 +839,39 @@
                 .on("end", dragended);
         }
 
-        // Hover Effect
-        node.on("mouseenter", function() {
-            d3.select(this).select(".base-circle").style("transform", "scale(1.2)");
-            d3.select(this).select(".node-text-container").style("transform", "scale(1.1)");
-        }).on("mouseleave", function() {
-            d3.select(this).select(".base-circle").style("transform", "scale(1)");
-            d3.select(this).select(".node-text-container").style("transform", "scale(1)");
-        });
+        // ==============================================
+        // 8. NAVIGASI ZOOM & KEMBALI KE PUSAT
+        // ==============================================
+        function goToCenter() {
+            activeNode = root;
+            updateHighlight(root);
+            syncPhysicsWithHighlight();
+            simulation.alpha(0.35).restart();
+            focusCameraOn(0, 0, 0.42, 650);
+        }
 
-        // Inisialisasi: Pilih pusat pertama kali
-        updateHighlight(root);
+        function zoomOutStep() {
+            svg.transition()
+                .duration(350)
+                .ease(d3.easeCubicOut)
+                .call(zoom.scaleBy, 0.65);
+        }
 
-        if (window.MathJax) {
-            MathJax.typesetPromise();
-        }	
+        function zoomInStep() {
+            svg.transition()
+                .duration(350)
+                .ease(d3.easeCubicOut)
+                .call(zoom.scaleBy, 1.45);
+        }
+
+        document.getElementById("fab-center").addEventListener("click", goToCenter);
+        document.getElementById("fab-zoom-out").addEventListener("click", zoomOutStep);
+        document.getElementById("fab-zoom-in").addEventListener("click", zoomInStep);
+
+        // Inisialisasi awal & pusatkan kamera di Mathematics (0, 0)
+        updateGraph(root, 0.3);
+        const { cx, cy } = getViewportCenter();
+        svg.call(zoom.transform, d3.zoomIdentity.translate(cx, cy).scale(0.42));
     </script>
 </body>
 </html>

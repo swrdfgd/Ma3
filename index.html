@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,10 +33,10 @@
             --border-color: #e2e8f0;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
-            /* Warna Highlight */
-            --hl-active: #eab308; /* Kuning */
-            --hl-child: #a855f7;  /* Ungu */
-            --hl-parent: #22c55e; /* Hijau */
+            /* Highlight Colors */
+            --hl-active: #eab308; /* Yellow */
+            --hl-child: #a855f7;  /* Purple */
+            --hl-parent: #22c55e; /* Green */
         }
 
         body {
@@ -53,16 +53,156 @@
 
         header {
             background-color: #ffffff;
-            padding: 0.85rem 2rem;
+            padding: 0.75rem 2rem;
             border-bottom: 1px solid var(--border-color);
             box-shadow: var(--shadow);
-            z-index: 10;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
         header h1 {
             margin: 0;
             font-size: 1.45rem;
             font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Search Bar Styling */
+        .search-wrapper {
+            position: relative;
+            width: 340px;
+            max-width: 100%;
+        }
+
+        .search-input-box {
+            display: flex;
+            align-items: center;
+            background-color: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 0.42rem 0.75rem;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+        }
+
+        .search-input-box:focus-within {
+            background-color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .search-icon {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-right: 0.5rem;
+            user-select: none;
+        }
+
+        #search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            font-family: 'Verdana', sans-serif;
+            font-size: 0.85rem;
+            color: #0f172a;
+        }
+
+        #search-clear {
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0 2px;
+            display: none;
+            line-height: 1;
+        }
+
+        #search-clear:hover {
+            color: #0f172a;
+        }
+
+        .search-results {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            width: 100%;
+            min-width: 320px;
+            max-height: 340px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+            z-index: 50;
+            display: none;
+        }
+
+        .search-results.open {
+            display: block;
+        }
+
+        .search-item {
+            padding: 0.6rem 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            transition: background-color 0.15s;
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-item:hover,
+        .search-item.active {
+            background-color: #eff6ff;
+        }
+
+        .search-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.25);
+        }
+
+        .search-item-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .search-item-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .search-item-path {
+            font-size: 0.7rem;
+            color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        .search-empty {
+            padding: 0.85rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
         }
 
         #mathree-container {
@@ -97,12 +237,12 @@
             text-decoration: underline !important;
         }
 
-        /* Semantic Zoom: saat diperkecil jauh, sembunyikan kotak teks pasif agar tetap ringan */
+        /* Semantic Zoom: hide passive text boxes when zoomed out far */
         svg.zoomed-far .node:not(.is-important) .node-fo {
             display: none;
         }
 
-        /* Tombol navigasi ringkas di pojok kanan bawah */
+        /* Compact navigation buttons in the bottom right corner */
         .zoom-fab {
             position: absolute;
             right: 18px;
@@ -140,13 +280,21 @@
 
     <header>
         <h1>Ma3 (Mathree) 🌳</h1>
+        <div class="search-wrapper">
+            <div class="search-input-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" placeholder="Search mathematics topics..." autocomplete="off">
+                <button id="search-clear" type="button" title="Clear search">✕</button>
+            </div>
+            <div id="search-results" class="search-results"></div>
+        </div>
     </header>
 
     <div id="mathree-container">
         <div class="zoom-fab">
-            <button id="fab-zoom-in" type="button" title="Perbesar (Zoom In)">+</button>
-            <button id="fab-zoom-out" type="button" title="Perkecil (Zoom Out)">−</button>
-            <button id="fab-center" type="button" title="Kembali ke Pusat Mathematics">⌂</button>
+            <button id="fab-zoom-in" type="button" title="Zoom In">+</button>
+            <button id="fab-zoom-out" type="button" title="Zoom Out">−</button>
+            <button id="fab-center" type="button" title="Return to Mathematics Center">⌂</button>
         </div>
     </div>
 
@@ -170,7 +318,7 @@
                 currentTransform = event.transform;
                 g.attr("transform", event.transform);
 
-                // Semantic Zoom: saat di-zoom out jauh (k < 0.3), sembunyikan label teks pasif
+                // Semantic Zoom: hide passive text labels when zoomed out far (k < 0.3)
                 svg.classed("zoomed-far", event.transform.k < 0.3);
             });
         svg.call(zoom);
@@ -196,9 +344,12 @@
         }
 
         // ==============================================
-        // 1. PERSIAPAN HIERARKI & POSISI AWAL STABIL
+        // 1. HIERARCHY SETUP & STABLE INITIAL POSITIONS
         // ==============================================
         const root = d3.hierarchy(mscData, d => d.cabang);
+
+        // Store all nodes before collapsing for fast search indexing
+        const allHierarchyNodes = root.descendants();
 
         function collapseDeep(d) {
             if (d.children) {
@@ -253,7 +404,7 @@
         }
 
         // ==============================================
-        // 2. RENDER MATHJAX PER-NODE BARU
+        // 2. RENDER MATHJAX FOR NEW NODES
         // ==============================================
         function renderMathJax(elements) {
             if (!elements || elements.length === 0) return;
@@ -267,7 +418,7 @@
         }
 
         // ==============================================
-        // 3. MESIN FISIKA (HANYA UNTUK TITIK YANG TERHIGHLIGHT)
+        // 3. PHYSICS ENGINE (ONLY FOR HIGHLIGHTED NODES)
         // ==============================================
         let activeNode = root;
         let activeOutwardDir = { x: 0, y: -1 };
@@ -305,18 +456,15 @@
             .force("radialRoot", d3.forceRadial(600, 0, 0)
                 .strength(d => (activeNode === root && d.parent === root) ? 0.18 : 0)
             )
-            // Menjaga titik aktif tetap berada di luar lingkaran utama & mendorong anak-anaknya mekar ke sisi luar
             .force("outwardZone", function(alpha) {
                 if (activeNode === root) return;
 
-                // 1. Pegas lembut menjaga titik aktif tetap di posisi luar tujuannya (kecuali saat sedang di-drag manual)
                 if (!isDraggingHighlighted && activeNode.targetX !== undefined && activeNode.targetY !== undefined) {
                     const spring = 0.22 * alpha;
                     activeNode.vx += (activeNode.targetX - activeNode.x) * spring;
                     activeNode.vy += (activeNode.targetY - activeNode.y) * spring;
                 }
 
-                // 2. Dorongan halus ke arah luar bagi anak-anak dari titik aktif agar mekar di sisi luar, bukan masuk ke dalam ring
                 const childOutward = 16 * alpha;
                 simulation.nodes().forEach(n => {
                     if (n.isHighlighted && n.parent === activeNode && n !== root) {
@@ -327,7 +475,6 @@
             })
             .stop();
 
-        // Sinkronkan status physics: hanya titik yang terhighlight (selain pusat root) yang bebas bergerak
         function syncPhysicsWithHighlight() {
             const nodesData = root.descendants();
             const linksData = root.links();
@@ -364,13 +511,12 @@
         let nodeSelection = nodeLayer.selectAll(".node");
 
         // ==============================================
-        // 4. UPDATE DOM GRAF (ENTER / UPDATE / EXIT)
+        // 4. UPDATE GRAPH DOM (ENTER / UPDATE / EXIT)
         // ==============================================
         function updateGraph(sourceNode = root, restartAlpha = 0.55) {
             const nodesData = root.descendants();
             const linksData = root.links();
 
-            // --- GARIS ---
             linkSelection = linkLayer
                 .selectAll(".link")
                 .data(linksData, d => `${d.source.data.id || d.source.data.nama}->${d.target.data.id || d.target.data.nama}`)
@@ -390,7 +536,6 @@
                     exit => exit.transition().duration(250).style("opacity", 0).remove()
                 );
 
-            // --- TITIK (NODES) ---
             const latexElements = [];
 
             nodeSelection = nodeLayer
@@ -439,7 +584,6 @@
                             .style("fill", "rgba(255, 255, 255, 0.75)")
                             .style("pointer-events", "none");
 
-                        // Penanda jumlah anak (+N) jika masih tertutup
                         nodeEnter.append("text")
                             .attr("class", "expand-badge")
                             .attr("text-anchor", "middle")
@@ -450,7 +594,6 @@
                             .style("text-shadow", "0 1px 2px rgba(0,0,0,0.85)")
                             .style("pointer-events", "none");
 
-                        // Kotak judul topik + MathJax di bawah bola
                         nodeEnter.each(function(d) {
                             const el = d3.select(this);
                             const width = 220;
@@ -501,8 +644,8 @@
                             }
 
                             if (
-                                displayLabel.includes("\(") ||
-                                displayLabel.includes("\[") ||
+                                displayLabel.includes("\\(") ||
+                                displayLabel.includes("\\[") ||
                                 displayLabel.includes("$")
                             ) {
                                 latexElements.push(span.node());
@@ -550,7 +693,7 @@
         simulation.on("tick", renderPositions);
 
         // ==============================================
-        // 5. ANIMASI MULUS: KELUAR JAUH KE LUAR LINGKARAN + KAMERA MENGIKUTI + MEKAR ANAK
+        // 5. SMOOTH ANIMATION: MOVE OUTSIDE MAIN RING + CAMERA TRACKING + EXPAND CHILDREN
         // ==============================================
         let isAnimatingNode = false;
 
@@ -585,7 +728,7 @@
         function handleNodeClick(d) {
             if (isAnimatingNode) return;
 
-            // Klik pusat Mathematics
+            // Click Mathematics center
             if (d === root) {
                 activeNode = root;
                 updateHighlight(root);
@@ -595,11 +738,10 @@
                 return;
             }
 
-            // KASUS 1: Node memiliki anak tersembunyi -> Dorong keluar jauh melampaui lingkaran utama + kamera ikuti
+            // CASE 1: Node has hidden children -> Push far outside main ring + track with camera
             if (d._children && d._children.length > 0) {
                 simulation.stop();
 
-                // Bekukan sementara seluruh node saat node ini bergerak keluar
                 root.descendants().forEach(n => {
                     n.fx = n.x;
                     n.fy = n.y;
@@ -607,7 +749,6 @@
                     n.vy = 0;
                 });
 
-                // Otomatis tutup cabang saudara lain agar tampilan tetap lapang & fokus
                 if (d.parent && d.parent.children) {
                     d.parent.children.forEach(sibling => {
                         if (sibling !== d && sibling.children) {
@@ -625,7 +766,6 @@
                     });
                 }
 
-                // Hitung arah radial keluar dari pusat (0,0) agar benar-benar menjauh keluar dari lingkaran dalam
                 let rx = d.x;
                 let ry = d.y;
                 let rDist = Math.hypot(rx, ry);
@@ -641,7 +781,6 @@
                 const childCount = d._children.length;
                 const childOrbit = 250 + Math.min(childCount * 7, 260);
 
-                // Pastikan jarak keluar melampaui lingkaran utama (radius ~760) ditambah ruang orbit anak-anaknya
                 let destX, destY;
                 if (d.depth === 1) {
                     const targetRadius = Math.max(rDist + 760, 780 + childOrbit + 220);
@@ -661,11 +800,9 @@
                 activeNode = d;
                 updateGraph(d, 0);
 
-                // Kamera mengikuti titik tersebut sebagai pusat penglihatan
                 const targetScale = childCount > 18 ? 0.56 : (d.depth === 1 ? 0.65 : 0.72);
                 focusCameraOn(destX, destY, targetScale, 540);
 
-                // Gerakkan titik keluar dengan mulus, lalu mekarkan anak-anaknya dengan physics aktif
                 animateNodePosition(d, destX, destY, 450, () => {
                     const baseAngle = Math.atan2(uy, ux);
                     const childrenList = d._children;
@@ -691,7 +828,7 @@
                     updateGraph(d, 0.78);
                 });
 
-            // KASUS 2: Node sudah terbuka & diklik ulang -> Tutup cabangnya dan kembalikan ke posisi semula
+            // CASE 2: Node already expanded & clicked again -> Collapse branch and return to home position
             } else if (d.children && d.children.length > 0 && activeNode === d) {
                 simulation.stop();
                 collapseDeep(d);
@@ -710,7 +847,7 @@
                     simulation.alpha(0.35).restart();
                 });
 
-            // KASUS 3: Node daun atau cabang lain -> Highlight & aktifkan physics hanya pada gugus terhighlight
+            // CASE 3: Leaf node or other branch -> Highlight & enable physics only on highlighted cluster
             } else {
                 activeNode = d;
                 if (d.targetX === undefined) {
@@ -727,7 +864,7 @@
         }
 
         // ==============================================
-        // 6. HIGHLIGHT WARNA (KUNING = AKTIF, UNGU = ANAK, HIJAU = INDUK)
+        // 6. HIGHLIGHT COLORS (YELLOW = ACTIVE, PURPLE = CHILD, GREEN = PARENT)
         // ==============================================
         function updateHighlight(targetNode) {
             activeNode = targetNode;
@@ -793,7 +930,7 @@
         }
 
         // ==============================================
-        // 7. DRAG MANUAL
+        // 7. MANUAL DRAG
         // ==============================================
         function drag(sim) {
             function dragstarted(event, d) {
@@ -840,7 +977,224 @@
         }
 
         // ==============================================
-        // 8. NAVIGASI ZOOM & KEMBALI KE PUSAT
+        // 8. SEARCH FEATURE & AUTOMATIC NODE NAVIGATION
+        // ==============================================
+        const searchInput = document.getElementById("search-input");
+        const searchClear = document.getElementById("search-clear");
+        const searchResultsEl = document.getElementById("search-results");
+        let currentMatches = [];
+        let selectedMatchIndex = -1;
+
+        function getAncestorPathText(node) {
+            const ancestors = node.ancestors().reverse().slice(0, -1);
+            if (ancestors.length === 0) return "Tree Root";
+            return ancestors.map(a => a.data.nama).join(" › ");
+        }
+
+        function navigateToSearchedNode(targetNode) {
+            if (isAnimatingNode) return;
+            simulation.stop();
+
+            // 1. Collapse all currently open branches & reset depth-1 nodes to home positions
+            if (root.children) {
+                root.children.forEach(c => {
+                    collapseDeep(c);
+                    c.extendedLinkDist = null;
+                    if (c.homeX !== undefined && c.homeY !== undefined) {
+                        c.x = c.homeX;
+                        c.y = c.homeY;
+                        c.fx = c.homeX;
+                        c.fy = c.homeY;
+                        c.targetX = c.homeX;
+                        c.targetY = c.homeY;
+                    }
+                });
+            }
+
+            if (targetNode === root) {
+                activeNode = root;
+                updateGraph(root, 0.35);
+                focusCameraOn(0, 0, 0.42, 600);
+                return;
+            }
+
+            // 2. Build path from root to targetNode
+            const path = targetNode.ancestors().reverse(); // [root, depth1, depth2, ..., targetNode]
+            const d1 = path[1];
+
+            let rx = d1.homeX !== undefined ? d1.homeX : d1.x;
+            let ry = d1.homeY !== undefined ? d1.homeY : d1.y;
+            let rDist = Math.hypot(rx, ry);
+            if (rDist < 1) {
+                rx = 0;
+                ry = -1;
+                rDist = 1;
+            }
+            const ux = rx / rDist;
+            const uy = ry / rDist;
+            const baseAngle = Math.atan2(uy, ux);
+            activeOutwardDir = { x: ux, y: uy };
+
+            // 3. Expand each ancestor along the path outward sequentially
+            for (let i = 1; i < path.length; i++) {
+                const curr = path[i];
+                const isTarget = (curr === targetNode);
+
+                if (i === 1) {
+                    const childCount = curr._children ? curr._children.length : 1;
+                    const childOrbit = 250 + Math.min(childCount * 7, 260);
+                    const targetRadius = Math.max(rDist + 760, 780 + childOrbit + 220);
+                    curr.x = ux * targetRadius;
+                    curr.y = uy * targetRadius;
+                    curr.targetX = curr.x;
+                    curr.targetY = curr.y;
+                    curr.extendedLinkDist = targetRadius;
+                }
+
+                // Expand children of curr along the path or if target has children
+                if (curr._children && curr._children.length > 0) {
+                    const childrenList = curr._children;
+                    const count = childrenList.length;
+                    const fanSpread = Math.min(Math.PI * 1.15, Math.max(0.65, count * 0.16));
+                    const orbitDist = isTarget ? (250 + Math.min(count * 7, 260)) : 520;
+
+                    childrenList.forEach((child, idx) => {
+                        const offsetAngle = count === 1
+                            ? baseAngle
+                            : baseAngle - fanSpread / 2 + (fanSpread * idx) / (count - 1);
+
+                        child.x = curr.x + Math.cos(offsetAngle) * orbitDist;
+                        child.y = curr.y + Math.sin(offsetAngle) * orbitDist;
+                        child.targetX = child.x;
+                        child.targetY = child.y;
+                        child.extendedLinkDist = orbitDist;
+                        child.fx = null;
+                        child.fy = null;
+                    });
+
+                    curr.children = childrenList;
+                    curr._children = null;
+                }
+            }
+
+            // 4. Focus highlight, physics, and camera on targetNode
+            activeNode = targetNode;
+            updateGraph(targetNode, 0.72);
+
+            const childCount = targetNode.children ? targetNode.children.length : 0;
+            const targetScale = childCount > 18 ? 0.56 : (childCount > 0 ? 0.68 : 0.85);
+            focusCameraOn(targetNode.x, targetNode.y, targetScale, 650);
+        }
+
+        function renderSearchDropdown(query) {
+            const q = query.trim().toLowerCase();
+            searchClear.style.display = q.length > 0 ? "block" : "none";
+
+            if (!q) {
+                searchResultsEl.classList.remove("open");
+                searchResultsEl.innerHTML = "";
+                currentMatches = [];
+                selectedMatchIndex = -1;
+                return;
+            }
+
+            currentMatches = allHierarchyNodes
+                .filter(n => n.data.nama && n.data.nama.toLowerCase().includes(q))
+                .slice(0, 30);
+
+            selectedMatchIndex = currentMatches.length > 0 ? 0 : -1;
+
+            if (currentMatches.length === 0) {
+                searchResultsEl.innerHTML = `<div class="search-empty">No matching topics found</div>`;
+            } else {
+                searchResultsEl.innerHTML = currentMatches.map((node, idx) => `
+                    <div class="search-item ${idx === 0 ? "active" : ""}" data-index="${idx}">
+                        <span class="search-dot" style="background-color: ${node.data.warna || "#cbd5e1"};"></span>
+                        <div class="search-item-info">
+                            <span class="search-item-title">${node.data.nama}</span>
+                            <span class="search-item-path">${getAncestorPathText(node)}</span>
+                        </div>
+                    </div>
+                `).join("");
+            }
+
+            searchResultsEl.classList.add("open");
+
+            // Render MathJax in search results if formulas are present
+            if (window.MathJax && typeof MathJax.typesetPromise === "function") {
+                MathJax.typesetPromise([searchResultsEl]).catch(() => {});
+            }
+        }
+
+        function selectSearchItem(index) {
+            if (index < 0 || index >= currentMatches.length) return;
+            const chosenNode = currentMatches[index];
+            searchInput.value = chosenNode.data.nama;
+            searchResultsEl.classList.remove("open");
+            navigateToSearchedNode(chosenNode);
+        }
+
+        searchInput.addEventListener("input", (e) => {
+            renderSearchDropdown(e.target.value);
+        });
+
+        searchInput.addEventListener("focus", () => {
+            if (searchInput.value.trim().length > 0) {
+                renderSearchDropdown(searchInput.value);
+            }
+        });
+
+        searchInput.addEventListener("keydown", (e) => {
+            if (!searchResultsEl.classList.contains("open") || currentMatches.length === 0) return;
+
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                selectedMatchIndex = (selectedMatchIndex + 1) % currentMatches.length;
+                updateActiveSearchItem();
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                selectedMatchIndex = (selectedMatchIndex - 1 + currentMatches.length) % currentMatches.length;
+                updateActiveSearchItem();
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                selectSearchItem(selectedMatchIndex >= 0 ? selectedMatchIndex : 0);
+            } else if (e.key === "Escape") {
+                searchResultsEl.classList.remove("open");
+            }
+        });
+
+        function updateActiveSearchItem() {
+            const items = searchResultsEl.querySelectorAll(".search-item");
+            items.forEach((item, idx) => {
+                item.classList.toggle("active", idx === selectedMatchIndex);
+                if (idx === selectedMatchIndex) {
+                    item.scrollIntoView({ block: "nearest" });
+                }
+            });
+        }
+
+        searchResultsEl.addEventListener("click", (e) => {
+            const itemEl = e.target.closest(".search-item");
+            if (!itemEl) return;
+            const idx = parseInt(itemEl.getAttribute("data-index"), 10);
+            selectSearchItem(idx);
+        });
+
+        searchClear.addEventListener("click", () => {
+            searchInput.value = "";
+            searchClear.style.display = "none";
+            searchResultsEl.classList.remove("open");
+            searchInput.focus();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".search-wrapper")) {
+                searchResultsEl.classList.remove("open");
+            }
+        });
+
+        // ==============================================
+        // 9. ZOOM NAVIGATION & RETURN TO CENTER
         // ==============================================
         function goToCenter() {
             activeNode = root;
@@ -868,7 +1222,7 @@
         document.getElementById("fab-zoom-out").addEventListener("click", zoomOutStep);
         document.getElementById("fab-zoom-in").addEventListener("click", zoomInStep);
 
-        // Inisialisasi awal & pusatkan kamera di Mathematics (0, 0)
+        // Initial setup & center camera at Mathematics (0, 0)
         updateGraph(root, 0.3);
         const { cx, cy } = getViewportCenter();
         svg.call(zoom.transform, d3.zoomIdentity.translate(cx, cy).scale(0.42));

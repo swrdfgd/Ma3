@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>74S05 Finite element methods applied to problems in solid mechanics - Ma3</title>
+    <style>
+        /* Vetanda Theme CSS Variables */
+        :root {
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --primary-color: #0f172a;
+            --link-color: #2563eb;
+            --link-hover: #1d4ed8;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: #ffffff;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--link-hover);
+            text-decoration: underline;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        /* Main Content Container */
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* Section Styling */
+        .section-container {
+            padding: 2rem 0;
+        }
+
+        .section-divider {
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, transparent, var(--border-color), transparent);
+            margin: 0;
+        }
+
+        .section-header {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* Branches / Related List */
+        .branch-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .branch-list li a {
+            display: block;
+            padding: 0.75rem 1rem;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .branch-list li a:hover {
+            border-color: var(--link-color);
+            background-color: #eff6ff;
+            color: var(--link-color);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Video Container */
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            background-color: #000;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Content Text & Playlist Link Styling */
+        .content-text p {
+            margin-bottom: 0;
+        }
+
+        .playlist-link {
+            display: inline-block;
+            color: var(--link-color);
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .playlist-link:hover {
+            color: var(--link-hover);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="back-btn">← Back to Ma3 Tree</a>
+        <h1>74S05: Finite element methods applied to problems in solid mechanics</h1>
+    </header>
+
+    <main>
+        <!-- SECTION: Related Topics -->
+        <div class="section-container">
+            <h2 class="section-header">Related Topics</h2>
+            <ul class="branch-list">
+                <li><a href="74-XX.html">74-XX: Mechanics of deformable solids</a></li>
+                <li><a href="74S.html">74S: Numerical and other methods in solid mechanics</a></li>
+                <li><a href="74B20.html">74B20: Nonlinear elasticity</a></li>
+                <li><a href="65N30.html">65N30: Finite element, Rayleigh-Ritz and Galerkin methods for boundary value problems involving PDEs</a></li>
+            </ul>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- SECTION: Content -->
+        <div class="section-container">
+            <h2 class="section-header" id="video-title">Nonlinear Finite Element Methods in Solid Mechanics</h2>
+            
+            <!-- Embedded Video Container (populated randomly via YouTube IFrame API) -->
+            <div class="video-wrapper">
+                <div id="player"></div>
+            </div>
+
+            <div class="content-text">
+                <p>
+                    <a href="https://www.youtube.com/playlist?list=PLzwZBbdFvin6QDmwZB5WNfnxgqupBh6Vm" class="playlist-link" target="_blank" rel="noopener noreferrer">
+                        Watch the playlist Nonlinear Finite Element Methods in Solid Mechanics
+                    </a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const PLAYLIST_ID = 'PLzwZBbdFvin6QDmwZB5WNfnxgqupBh6Vm';
+        const fallbackVideos = [
+            { id: 'yWVS2E-1PKo', title: 'Equations of elasticity' },
+            { id: 'WWwP_75h2xI', title: 'Indicial notation with a twist' },
+            { id: '1h3kpb0f0A4', title: 'Constitutive models for nonlinear elasticity' },
+            { id: 'gMjne-6H2n0', title: 'Neo-Hookean materials' },
+            { id: 'XqU0NP3wQt8', title: 'Convergence and locking' },
+            { id: 'IatrBspgpIU', title: 'EPFM: HRR fields' }
+        ];
+
+        let player;
+        let hasPickedRandom = false;
+
+        // Muat YouTube IFrame API secara asinkron
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                playerVars: {
+                    listType: 'playlist',
+                    list: PLAYLIST_ID,
+                    rel: 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange,
+                    'onError': onPlayerError
+                }
+            });
+
+            // Pengaman jika daftar playlist gagal dimuat dalam 5 detik
+            setTimeout(() => {
+                if (!hasPickedRandom) {
+                    loadFallbackVideo();
+                }
+            }, 5000);
+        }
+
+        function pickRandomFromPlaylist(targetPlayer) {
+            const playlist = targetPlayer.getPlaylist();
+            if (playlist && playlist.length > 0 && !hasPickedRandom) {
+                hasPickedRandom = true;
+                const randomIndex = Math.floor(Math.random() * playlist.length);
+                targetPlayer.cueVideoById(playlist[randomIndex]);
+            }
+        }
+
+        function onPlayerReady(event) {
+            pickRandomFromPlaylist(event.target);
+        }
+
+        function onPlayerStateChange(event) {
+            if (!hasPickedRandom) {
+                pickRandomFromPlaylist(event.target);
+            }
+
+            if (
+                hasPickedRandom &&
+                (event.data === YT.PlayerState.CUED ||
+                 event.data === YT.PlayerState.PLAYING ||
+                 event.data === YT.PlayerState.BUFFERING)
+            ) {
+                const videoData = event.target.getVideoData();
+                if (videoData && videoData.title) {
+                    document.getElementById('video-title').textContent = videoData.title;
+                }
+            }
+        }
+
+        function onPlayerError() {
+            if (!hasPickedRandom) {
+                loadFallbackVideo();
+            }
+        }
+
+        function loadFallbackVideo() {
+            hasPickedRandom = true;
+            const randomVideo = fallbackVideos[Math.floor(Math.random() * fallbackVideos.length)];
+            document.getElementById('video-title').textContent = randomVideo.title;
+            if (player && typeof player.cueVideoById === 'function') {
+                player.cueVideoById(randomVideo.id);
+            }
+        }
+    </script>
+
+</body>
+</html>

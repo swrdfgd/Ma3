@@ -41382,26 +41382,11 @@ const mscData = {
                     ]
                 },
                 {
-                    id: "92Fxx",
+                    id: "92F05",
                     nama: "Other Natural Sciences (Mathematical Treatment)",
                     link: "92Fxx.html",
                     warna: "#f467b3",
-                    cabang: [
-                        {
-                            id: "92F05",
-                            nama: "Other Natural Sciences (Mathematical Treatment)",
-                            link: "92F05.html",
-                            warna: "#b566b3",
-                            cabang: []
-                        },
-                        {
-                            id: "92F99",
-                            nama: "Other Natural Sciences (Mathematical Treatment)",
-                            link: "92F99.html",
-                            warna: "#b566b3",
-                            cabang: []
-                        }
-                    ]
+                    cabang: []
                 }
             ]
         },

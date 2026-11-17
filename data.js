@@ -41384,7 +41384,7 @@ const mscData = {
                 {
                     id: "92F05",
                     nama: "Other Natural Sciences (Mathematical Treatment)",
-                    link: "92Fxx.html",
+                    link: "92F05.html",
                     warna: "#f467b3",
                     cabang: []
                 }

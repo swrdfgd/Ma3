@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Other Natural Sciences (Mathematical Treatment) | Mathree</title>
+
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --accent: #f467b3;
+      --accent-dark: #d94695;
+      --accent-soft: rgba(244, 103, 179, 0.12);
+      --accent-border: rgba(244, 103, 179, 0.35);
+      --bg: #0f1117;
+      --surface: #171a23;
+      --surface-alt: #1f2430;
+      --text: #e6e8ef;
+      --text-muted: #9aa3b5;
+      --border: #2a3040;
+      --blue: #38bdf8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 24px 16px 60px;
+    }
+
+    .container {
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    /* Navigation & Header */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .topic-badge {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      padding: 4px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.02em;
+    }
+
+    header.hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+
+    header.hero h1 {
+      font-size: 1.75rem;
+      margin: 10px 0 12px;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+
+    header.hero p {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+    }
+
+    .scope-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .scope-tag {
+      font-size: 0.82rem;
+      background: var(--surface-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    /* Sections & Cards */
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header h2 {
+      font-size: 1.2rem;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-header h2::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* Interactive Simulation */
+    .equation-box {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      overflow-x: auto;
+      text-align: center;
+      font-size: 0.96rem;
+    }
+
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .control-group {
+      background: var(--surface-alt);
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .control-group label span.val {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+    }
+
+    .checkbox-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      accent-color: var(--accent);
+      width: 16px;
+      height: 16px;
+    }
+
+    .sim-readout {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.88rem;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+
+    .canvas-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 740px) {
+      .canvas-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .canvas-wrap {
+      background: #12151d;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .canvas-title {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    canvas {
+      width: 100%;
+      height: 230px;
+      display: block;
+    }
+
+    /* Two-column layout for Papers & Spotlight */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 820px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .two-col .section-card {
+      margin-bottom: 0;
+    }
+
+    .paper-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .paper-item {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      transition: border-color 0.2s ease;
+    }
+
+    .paper-item:hover {
+      border-color: var(--accent-border);
+    }
+
+    .paper-item a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.96rem;
+    }
+
+    .paper-item a:hover {
+      text-decoration: underline;
+    }
+
+    .paper-meta {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .paper-desc {
+      font-size: 0.87rem;
+      color: var(--text);
+      margin-top: 6px;
+    }
+
+    /* Course Spotlight */
+    .spotlight-box {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 240px;
+    }
+
+    .spotlight-tag {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .spotlight-title {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .spotlight-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0f1117;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* RSS Feed Tabs & Grid */
+    .feed-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .feed-tab {
+      background: var(--surface-alt);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .feed-tab.active, .feed-tab:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent-border);
+    }
+
+    .rss-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .rss-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .rss-card h3 {
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .rss-card h3 a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .rss-card h3 a:hover {
+      color: var(--accent);
+    }
+
+    .rss-snippet {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .rss-footer {
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .status-msg {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      padding: 12px 0;
+    }
+
+    /* Related Topics */
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 12px;
+    }
+
+    .related-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .related-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .related-name {
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .related-arrow {
+      color: var(--accent);
+      font-size: 0.95rem;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="top-nav">
+      <a href="index.html" class="back-link">&larr; Back to Mathree</a>
+      <span class="topic-badge">Applied Mathematics • Natural Sciences</span>
+    </nav>
+
+    <header class="hero">
+      <div class="topic-badge">Natural Sciences</div>
+      <h1>Other Natural Sciences (Mathematical Treatment)</h1>
+      <p>
+        Quantitative modeling, dynamical systems, and mathematical formulations applied to natural sciences beyond pure biology and chemistry—bridging Earth system dynamics, climate energy balance, environmental hydrology, and mathematical geosciences.
+      </p>
+      <div class="scope-tags">
+        <span class="scope-tag">Climate &amp; Energy Balance Models</span>
+        <span class="scope-tag">Atmospheric &amp; Oceanic Dynamics</span>
+        <span class="scope-tag">Hydrology &amp; Pollutant Dispersion</span>
+        <span class="scope-tag">Geostatistics &amp; Crystallography</span>
+      </div>
+    </header>
+
+    <!-- 1. Interactive Simulation -->
+    <section class="section-card">
+      <div class="section-header">
+        <h2>Interactive Model: 0D Planetary Energy Balance (Budyko–Sellers Type)</h2>
+        <span class="topic-badge">Dynamical System</span>
+      </div>
+
+      <div class="equation-box">
+        $$C \frac{dT}{dt} = R_{\text{in}}(T) - R_{\text{out}}(T) = \frac{S_0}{4}\bigl(1 - \alpha(T)\bigr) - \varepsilon \sigma T^4$$
+      </div>
+
+      <div class="sim-controls">
+        <div class="control-group">
+          <label for="solarSlider">Solar Constant $S_0$ <span class="val" id="solarVal">1361 W/m²</span></label>
+          <input type="range" id="solarSlider" min="1150" max="1550" step="1" value="1361" />
+        </div>
+        <div class="control-group">
+          <label for="emissivitySlider">IR Emissivity $\varepsilon$ <span class="val" id="emissivityVal">0.627</span></label>
+          <input type="range" id="emissivitySlider" min="0.450" max="0.850" step="0.001" value="0.627" />
+        </div>
+        <div class="control-group">
+          <label for="initTempSlider">Initial Temp $T_0$ <span class="val" id="initTempVal">285 K</span></label>
+          <input type="range" id="initTempSlider" min="220" max="320" step="1" value="285" />
+        </div>
+      </div>
+
+      <div class="checkbox-row">
+        <label>
+          <input type="checkbox" id="feedbackToggle" checked />
+          Enable Ice-Albedo Feedback $\alpha(T) = 0.28 + 0.17\bigl(1 - \tanh\frac{T - 268}{6}\bigr)$
+        </label>
+        <div class="sim-readout" id="eqReadout">T(50 yr): 288.1 K (15.0 °C)</div>
+      </div>
+
+      <div class="canvas-grid">
+        <div class="canvas-wrap">
+          <div class="canvas-title">Radiative Flux Balance: $R_{\text{in}}(T)$ vs $R_{\text{out}}(T)$ (W/m²)</div>
+          <canvas id="fluxCanvas"></canvas>
+        </div>
+        <div class="canvas-wrap">
+          <div class="canvas-title">Temperature Trajectory $T(t)$ over 50 Years (RK4)</div>
+          <canvas id="timeCanvas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Foundational Papers + Random Open Course Spotlight -->
+    <div class="two-col">
+      <section class="section-card">
+        <div class="section-header">
+          <h2>Foundational Literature</h2>
+        </div>
+        <ul class="paper-list">
+          <li class="paper-item">
+            <a href="https://doi.org/10.1175/1520-0469(1963)020%3C0130:DNF%3E2.0.CO;2" target="_blank" rel="noopener">
+              Deterministic Nonperiodic Flow
+            </a>
+            <div class="paper-meta">Edward N. Lorenz • Journal of the Atmospheric Sciences (1963)</div>
+            <div class="paper-desc">
+              Derives the three-dimensional atmospheric convection ODE system ($\dot{x}=\sigma(y-x)$, $\dot{y}=rx-y-xz$, $\dot{z}=xy-bz$), establishing sensitive dependence on initial conditions in geophysical fluids.
+            </div>
+          </li>
+          <li class="paper-item">
+            <a href="https://doi.org/10.3402/tellusa.v21i5.10109" target="_blank" rel="noopener">
+              The Effect of Solar Radiation Variations on the Climate of the Earth
+            </a>
+            <div class="paper-meta">Mikhail I. Budyko • Tellus (1969)</div>
+            <div class="paper-desc">
+              Formulates zonal energy-balance climate equations incorporating ice-albedo feedback and multiple climate equilibria (warm vs. ice-covered states).
+            </div>
+          </li>
+          <li class="paper-item">
+            <a href="https://doi.org/10.1175/1520-0450(1969)008%3C0392:AGCMBO%3E2.0.CO;2" target="_blank" rel="noopener">
+              A Global Climatic Model Based on the Energy Balance of the Earth-Atmosphere System
+            </a>
+            <div class="paper-meta">William D. Sellers • Journal of Applied Meteorology (1969)</div>
+            <div class="paper-desc">
+              Couples meridional heat transport diffusion with radiative transfer to quantify global temperature sensitivity to solar and greenhouse perturbations.
+            </div>
+          </li>
+          <li class="paper-item">
+            <a href="https://doi.org/10.2113/gsecongeo.58.8.1246" target="_blank" rel="noopener">
+              Principles of Geostatistics
+            </a>
+            <div class="paper-meta">Georges Matheron • Economic Geology (1963)</div>
+            <div class="paper-desc">
+              Introduces regionalized variables, variograms, and kriging interpolation for spatial estimation in geology, hydrology, and environmental science.
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="section-card">
+        <div class="section-header">
+          <h2>Open Lecture Spotlight</h2>
+        </div>
+        <div class="spotlight-box">
+          <div>
+            <div class="spotlight-tag" id="spotSource">MIT OpenCourseWare</div>
+            <div class="spotlight-title" id="spotTitle">Loading lecture...</div>
+            <p class="spotlight-desc" id="spotDesc"></p>
+          </div>
+          <div class="btn-row">
+            <a id="spotLink" href="#" target="_blank" rel="noopener" class="btn btn-primary">Open Course Material &nearr;</a>
+            <button type="button" id="shuffleBtn" class="btn btn-secondary">Shuffle Topic</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 3. Live Quantitative Natural Science Feed -->
+    <section class="section-card">
+      <div class="section-header">
+        <h2>Latest Quantitative Natural Science Preprints &amp; Articles</h2>
+        <div class="feed-tabs">
+          <button type="button" class="feed-tab active" data-feed="https://rss.arxiv.org/rss/physics.ao-ph" data-fallback="https://arxiv.org/list/physics.ao-ph/recent">
+            arXiv: Atmospheric &amp; Oceanic
+          </button>
+          <button type="button" class="feed-tab" data-feed="https://rss.arxiv.org/rss/physics.geo-ph" data-fallback="https://arxiv.org/list/physics.geo-ph/recent">
+            arXiv: Geophysics
+          </button>
+          <button type="button" class="feed-tab" data-feed="https://www.quantamagazine.org/feed/" data-fallback="https://www.quantamagazine.org/">
+            Quanta Magazine
+          </button>
+        </div>
+      </div>
+      <div id="rssContainer" class="status-msg">Fetching latest feed items...</div>
+    </section>
+
+    <!-- 4. Related Topics -->
+    <section class="section-card">
+      <div class="section-header">
+        <h2>Related Topics</h2>
+      </div>
+      <div class="related-grid">
+        <a href="92-XX.html" class="related-card">
+          <span class="related-name">Biology and Other Natural Sciences</span>
+          <span class="related-arrow">&rarr;</span>
+        </a>
+        <a href="92E99.html" class="related-card">
+          <span class="related-name">Chemistry</span>
+          <span class="related-arrow">&rarr;</span>
+        </a>
+        <a href="92D40.html" class="related-card">
+          <span class="related-name">Ecology</span>
+          <span class="related-arrow">&rarr;</span>
+        </a>
+        <a href="76-XX.html" class="related-card">
+          <span class="related-name">Fluid Mechanics</span>
+          <span class="related-arrow">&rarr;</span>
+        </a>
+        <a href="86-XX.html" class="related-card">
+          <span class="related-name">Geophysics</span>
+          <span class="related-arrow">&rarr;</span>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /* =========================================================
+       1. 0D ENERGY BALANCE CLIMATE MODEL (RK4 + CANVAS PLOTS)
+       ========================================================= */
+    const SIGMA = 5.670374e-8;
+    const C_EFF = 12.67;
+
+    const solarSlider = document.getElementById('solarSlider');
+    const emissivitySlider = document.getElementById('emissivitySlider');
+    const initTempSlider = document.getElementById('initTempSlider');
+    const feedbackToggle = document.getElementById('feedbackToggle');
+
+    const solarVal = document.getElementById('solarVal');
+    const emissivityVal = document.getElementById('emissivityVal');
+    const initTempVal = document.getElementById('initTempVal');
+    const eqReadout = document.getElementById('eqReadout');
+
+    const fluxCanvas = document.getElementById('fluxCanvas');
+    const timeCanvas = document.getElementById('timeCanvas');
+
+    function albedo(T, hasFeedback) {
+      if (!hasFeedback) return 0.28;
+      return 0.28 + 0.17 * (1 - Math.tanh((T - 268) / 6));
+    }
+
+    function dTdt(T, S0, eps, hasFeedback) {
+      const Rin = (S0 / 4) * (1 - albedo(T, hasFeedback));
+      const Rout = eps * SIGMA * Math.pow(T, 4);
+      return (Rin - Rout) / C_EFF;
+    }
+
+    function integrateRK4(T0, S0, eps, hasFeedback, years = 50, steps = 250) {
+      const dt = years / steps;
+      const pts = [{ t: 0, T: T0 }];
+      let T = T0;
+      for (let i = 1; i <= steps; i++) {
+        const k1 = dTdt(T, S0, eps, hasFeedback);
+        const k2 = dTdt(T + 0.5 * dt * k1, S0, eps, hasFeedback);
+        const k3 = dTdt(T + 0.5 * dt * k2, S0, eps, hasFeedback);
+        const k4 = dTdt(T + dt * k3, S0, eps, hasFeedback);
+        T += (dt / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
+        pts.push({ t: i * dt, T });
+      }
+      return pts;
+    }
+
+    function setupCanvas(canvas) {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      return { ctx, w: rect.width, h: rect.height };
+    }
+
+    function drawSimulation() {
+      const S0 = parseFloat(solarSlider.value);
+      const eps = parseFloat(emissivitySlider.value);
+      const T0 = parseFloat(initTempSlider.value);
+      const hasFeedback = feedbackToggle.checked;
+
+      solarVal.textContent = `${S0} W/m²`;
+      emissivityVal.textContent = eps.toFixed(3);
+      initTempVal.textContent = `${T0} K`;
+
+      const trajectory = integrateRK4(T0, S0, eps, hasFeedback, 50, 250);
+      const finalT = trajectory[trajectory.length - 1].T;
+      const celsius = (finalT - 273.15).toFixed(1);
+      eqReadout.textContent = `T(50 yr): ${finalT.toFixed(1)} K (${celsius} °C)`;
+
+      // Plot 1: Radiative Balance
+      const f = setupCanvas(fluxCanvas);
+      const pad = { l: 44, r: 16, t: 16, b: 30 };
+      const pw = f.w - pad.l - pad.r;
+      const ph = f.h - pad.t - pad.b;
+      const Tmin = 210, Tmax = 320;
+      const Fmin = 80, Fmax = 420;
+
+      const xMap = T => pad.l + ((T - Tmin) / (Tmax - Tmin)) * pw;
+      const yMap = F => pad.t + ph - ((F - Fmin) / (Fmax - Fmin)) * ph;
+
+      f.ctx.clearRect(0, 0, f.w, f.h);
+      f.ctx.strokeStyle = '#2a3040';
+      f.ctx.lineWidth = 1;
+      for (let g = 100; g <= 400; g += 100) {
+        const y = yMap(g);
+        f.ctx.beginPath();
+        f.ctx.moveTo(pad.l, y);
+        f.ctx.lineTo(pad.l + pw, y);
+        f.ctx.stroke();
+        f.ctx.fillStyle = '#9aa3b5';
+        f.ctx.font = '11px monospace';
+        f.ctx.fillText(g, 8, y + 4);
+      }
+
+      // Rin curve
+      f.ctx.strokeStyle = '#f467b3';
+      f.ctx.lineWidth = 2.4;
+      f.ctx.beginPath();
+      for (let T = Tmin; T <= Tmax; T += 1) {
+        const Rin = (S0 / 4) * (1 - albedo(T, hasFeedback));
+        const x = xMap(T), y = yMap(Rin);
+        if (T === Tmin) f.ctx.moveTo(x, y);
+        else f.ctx.lineTo(x, y);
+      }
+      f.ctx.stroke();
+
+      // Rout curve
+      f.ctx.strokeStyle = '#38bdf8';
+      f.ctx.lineWidth = 2.4;
+      f.ctx.beginPath();
+      for (let T = Tmin; T <= Tmax; T += 1) {
+        const Rout = eps * SIGMA * Math.pow(T, 4);
+        const x = xMap(T), y = yMap(Rout);
+        if (T === Tmin) f.ctx.moveTo(x, y);
+        else f.ctx.lineTo(x, y);
+      }
+      f.ctx.stroke();
+
+      // Current state marker
+      const curFlux = eps * SIGMA * Math.pow(finalT, 4);
+      if (finalT >= Tmin && finalT <= Tmax) {
+        f.ctx.fillStyle = '#ffffff';
+        f.ctx.beginPath();
+        f.ctx.arc(xMap(finalT), yMap(curFlux), 4.5, 0, Math.PI * 2);
+        f.ctx.fill();
+      }
+
+      f.ctx.fillStyle = '#9aa3b5';
+      f.ctx.font = '11px monospace';
+      f.ctx.fillText('210K', pad.l, f.h - 8);
+      f.ctx.fillText('265K', xMap(265) - 14, f.h - 8);
+      f.ctx.fillText('320K', pad.l + pw - 28, f.h - 8);
+
+      f.ctx.fillStyle = '#f467b3';
+      f.ctx.fillText('— Rin(T)', pad.l + 8, pad.t + 14);
+      f.ctx.fillStyle = '#38bdf8';
+      f.ctx.fillText('— Rout(T)', pad.l + 78, pad.t + 14);
+
+      // Plot 2: Time Evolution T(t)
+      const tm = setupCanvas(timeCanvas);
+      const tpw = tm.w - pad.l - pad.r;
+      const tph = tm.h - pad.t - pad.b;
+
+      const txMap = t => pad.l + (t / 50) * tpw;
+      const tyMap = T => pad.t + tph - ((T - Tmin) / (Tmax - Tmin)) * tph;
+
+      tm.ctx.clearRect(0, 0, tm.w, tm.h);
+      tm.ctx.strokeStyle = '#2a3040';
+      tm.ctx.lineWidth = 1;
+      for (let Tg = 220; Tg <= 320; Tg += 25) {
+        const y = tyMap(Tg);
+        tm.ctx.beginPath();
+        tm.ctx.moveTo(pad.l, y);
+        tm.ctx.lineTo(pad.l + tpw, y);
+        tm.ctx.stroke();
+        tm.ctx.fillStyle = '#9aa3b5';
+        tm.ctx.font = '11px monospace';
+        tm.ctx.fillText(`${Tg}K`, 6, y + 4);
+      }
+
+      tm.ctx.strokeStyle = '#f467b3';
+      tm.ctx.lineWidth = 2.5;
+      tm.ctx.beginPath();
+      trajectory.forEach((pt, idx) => {
+        const x = txMap(pt.t);
+        const y = tyMap(Math.max(Tmin, Math.min(Tmax, pt.T)));
+        if (idx === 0) tm.ctx.moveTo(x, y);
+        else tm.ctx.lineTo(x, y);
+      });
+      tm.ctx.stroke();
+
+      tm.ctx.fillStyle = '#9aa3b5';
+      tm.ctx.font = '11px monospace';
+      tm.ctx.fillText('0 yr', pad.l, tm.h - 8);
+      tm.ctx.fillText('25 yr', txMap(25) - 16, tm.h - 8);
+      tm.ctx.fillText('50 yr', pad.l + tpw - 30, tm.h - 8);
+    }
+
+    [solarSlider, emissivitySlider, initTempSlider, feedbackToggle].forEach(el => {
+      el.addEventListener('input', drawSimulation);
+    });
+    window.addEventListener('resize', drawSimulation);
+    drawSimulation();
+
+    /* =========================================================
+       2. OPEN LECTURE SPOTLIGHT
+       ========================================================= */
+    const lectures = [
+      {
+        source: "MIT OpenCourseWare • 12.340x",
+        title: "Global Warming Science: Radiative Transfer & Climate Feedbacks",
+        desc: "Quantitative treatment of planetary energy balance, greenhouse gas absorption spectra, and climate sensitivity feedback loops.",
+        url: "https://ocw.mit.edu/courses/12-340x-global-warming-science-spring-2016/"
+      },
+      {
+        source: "MIT OpenCourseWare • 12.006J / 18.353J",
+        title: "Nonlinear Dynamics: Chaos in Atmospheric & Natural Systems",
+        desc: "Bifurcations, strange attractors, and the Lorenz equations applied to geophysical convection and natural oscillators.",
+        url: "https://ocw.mit.edu/courses/18-353j-nonlinear-dynamics-chaos-fall-2016/"
+      },
+      {
+        source: "MIT OpenCourseWare • 1.72",
+        title: "Groundwater Hydrology & Subsurface Transport Modeling",
+        desc: "Darcy's law, advection-dispersion PDEs, and mathematical modeling of aquifer flow and contaminant transport.",
+        url: "https://ocw.mit.edu/courses/1-72-groundwater-hydrology-fall-2005/"
+      },
+      {
+        source: "MIT OpenCourseWare • 12.800",
+        title: "Fluid Dynamics of the Atmosphere and Ocean",
+        desc: "Rotating shallow-water equations, Rossby waves, and mathematical geophysical fluid dynamics on a sphere.",
+        url: "https://ocw.mit.edu/courses/12-800-fluid-dynamics-of-the-atmosphere-and-ocean-fall-2004/"
+      }
+    ];
+
+    let currentLectureIdx = Math.floor(Math.random() * lectures.length);
+
+    function renderSpotlight(idx) {
+      const item = lectures[idx];
+      document.getElementById('spotSource').textContent = item.source;
+      document.getElementById('spotTitle').textContent = item.title;
+      document.getElementById('spotDesc').textContent = item.desc;
+      document.getElementById('spotLink').href = item.url;
+    }
+
+    document.getElementById('shuffleBtn').addEventListener('click', () => {
+      currentLectureIdx = (currentLectureIdx + 1) % lectures.length;
+      renderSpotlight(currentLectureIdx);
+    });
+    renderSpotlight(currentLectureIdx);
+
+    /* =========================================================
+       3. LIVE RSS FEED LOADER
+       ========================================================= */
+    const rssContainer = document.getElementById('rssContainer');
+    const feedTabs = document.querySelectorAll('.feed-tab');
+
+    function stripHtml(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html || '';
+      return (tmp.textContent || tmp.innerText || '').trim();
+    }
+
+    async function loadFeed(rssUrl, fallbackUrl) {
+      rssContainer.className = 'status-msg';
+      rssContainer.textContent = 'Fetching latest feed items...';
+
+      try {
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error('Feed proxy unavailable');
+        const data = await res.json();
+
+        if (data.status !== 'ok' || !data.items || data.items.length === 0) {
+          throw new Error('Empty feed response');
+        }
+
+        rssContainer.className = 'rss-grid';
+        rssContainer.innerHTML = data.items.slice(0, 6).map(item => {
+          const cleanDesc = stripHtml(item.description).slice(0, 180) + '...';
+          const dateStr = item.pubDate ? item.pubDate.split(' ')[0] : 'Recent';
+          return `
+            <article class="rss-card">
+              <div>
+                <h3><a href="${item.link}" target="_blank" rel="noopener">${item.title}</a></h3>
+                <p class="rss-snippet">${cleanDesc}</p>
+              </div>
+              <div class="rss-footer">${dateStr} • Read &nearr;</div>
+            </article>
+          `;
+        }).join('');
+      } catch (err) {
+        rssContainer.className = 'status-msg';
+        rssContainer.innerHTML = `
+          Live RSS preview is temporarily rate-limited. Browse the latest entries directly at:
+          <a href="${fallbackUrl}" target="_blank" rel="noopener" style="color: var(--accent); font-weight: 600;">${fallbackUrl} &nearr;</a>
+        `;
+      }
+    }
+
+    feedTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        feedTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        loadFeed(tab.dataset.feed, tab.dataset.fallback);
+      });
+    });
+
+    const initialTab = feedTabs[0];
+    loadFeed(initialTab.dataset.feed, initialTab.dataset.fallback);
+  </script>
+</body>
+</html>

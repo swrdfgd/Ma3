@@ -133,6 +133,10 @@
             background-color: #000;
         }
 
+        .video-wrapper.playlist-video {
+            margin-bottom: 1rem;
+        }
+
         .video-wrapper iframe {
             position: absolute;
             top: 0;
@@ -140,6 +144,25 @@
             width: 100%;
             height: 100%;
             border: none;
+        }
+
+        /* Playlist Link Styling */
+        .playlist-actions {
+            margin-bottom: 1.5rem;
+        }
+
+        .playlist-link {
+            display: inline-block;
+            font-size: 0.95rem;
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+
+        .playlist-link:hover {
+            color: var(--link-hover);
+            text-decoration: underline;
         }
 
         /* Content Text Styling */
@@ -196,7 +219,44 @@
                 </p>
             </div> -->
         </div>
+
+        <hr class="section-divider">
+
+        <!-- SECTION: Playlist -->
+        <div class="section-container">
+            <h2 class="section-header">Real Analysis Exercises</h2>
+
+            <!-- Embedded Playlist Video -->
+            <div class="video-wrapper playlist-video">
+                <iframe 
+                    id="playlist-player"
+                    title="YouTube playlist player - Real Analysis Exercises" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+
+            <!-- Link to Playlist -->
+            <div class="playlist-actions">
+                <a href="https://www.youtube.com/playlist?list=PLztBpqftvzxXAN05Gm3iNmpz9SkVfLNqC" 
+                   class="playlist-link" 
+                   target="_blank" 
+                   rel="noopener noreferrer">
+                    ↗ View Full Playlist: Real Analysis Exercises (Wrath of Math)
+                </a>
+            </div>
+        </div>
     </main>
+
+    <script>
+        (function () {
+            const playlistId = "PLztBpqftvzxXAN05Gm3iNmpz9SkVfLNqC";
+            const totalAvailableVideos = 35; // 36 total videos minus 1 unavailable hidden video
+            const randomIndex = Math.floor(Math.random() * totalAvailableVideos);
+            document.getElementById("playlist-player").src =
+                `https://www.youtube.com/embed/videoseries?list=${playlistId}&index=${randomIndex}`;
+        })();
+    </script>
 
 </body>
 </html>

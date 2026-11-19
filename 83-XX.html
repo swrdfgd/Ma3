@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relativity and gravitational theory | Ma3 (Mathree)</title>
+
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --ink: #111111;
+      --muted: #555555;
+      --subtle: #777777;
+      --border: #e5e5e5;
+      --tag-bg: #f4f4f4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .back-link:hover {
+      border-color: var(--ink);
+      background: #f5f5f5;
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    /* Sections */
+    .section-block {
+      margin-top: 2.25rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-block:first-of-type {
+      margin-top: 0;
+    }
+
+    .section-block h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .section-note {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    /* Software & Source Code Cards */
+    .resource-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .resource-card {
+      display: block;
+      text-decoration: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.15rem;
+      color: var(--ink);
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .resource-card:hover {
+      border-color: var(--ink);
+      background: #f8f8f8;
+    }
+
+    .resource-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.75rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .resource-name {
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .resource-lang {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.12rem 0.5rem;
+      white-space: nowrap;
+    }
+
+    .resource-desc {
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* Branches */
+    .branch-list {
+      display: grid;
+      gap: 0.55rem;
+      margin-top: 1rem;
+    }
+
+    .branch-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      text-decoration: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.7rem 0.95rem;
+      font-size: 0.93rem;
+      color: var(--ink);
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .branch-link:hover {
+      border-color: var(--ink);
+      background: #f7f7f7;
+    }
+
+    .branch-arrow {
+      color: var(--subtle);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .branch-link:hover .branch-arrow {
+      color: var(--ink);
+      transform: translateX(2px);
+    }
+
+    /* Related Topics */
+    .topic-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .topic-tag {
+      display: inline-block;
+      font-size: 0.88rem;
+      color: var(--ink);
+      text-decoration: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.45rem 0.8rem;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .topic-tag:hover {
+      border-color: var(--ink);
+      background: #f5f5f5;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      .container {
+        padding: 1.75rem 1rem 3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+      <a href="index.html" class="back-link">&larr; Back to Ma3 (Mathree)</a>
+    </nav>
+
+    <!-- Header -->
+    <header>
+      <h1>Relativity and gravitational theory</h1>
+      <p class="subtitle">
+        Mathematical foundations of special and general relativity, gravitational fields, and relativistic cosmology.
+      </p>
+    </header>
+
+    <!-- Software & Source Code -->
+    <section class="section-block">
+      <h2>Software, source code, etc.</h2>
+      <p class="section-note">
+        Open-source tools, symbolic tensor algebra packages, and numerical relativity frameworks for problems pertaining to relativity and gravitational theory.
+      </p>
+      <div class="resource-list">
+        <a href="https://sagemanifolds.obspm.fr/" target="_blank" rel="noopener noreferrer" class="resource-card">
+          <div class="resource-header">
+            <span class="resource-name">SageManifolds &nearr;</span>
+            <span class="resource-lang">Python / SageMath</span>
+          </div>
+          <p class="resource-desc">
+            Open-source package integrated into SageMath for symbolic differential geometry, tensor calculus on smooth manifolds, curvature computations, and exact solutions in general relativity.
+          </p>
+        </a>
+
+        <a href="https://cadabra.science/" target="_blank" rel="noopener noreferrer" class="resource-card">
+          <div class="resource-header">
+            <span class="resource-name">Cadabra &nearr;</span>
+            <span class="resource-lang">C++ / Python</span>
+          </div>
+          <p class="resource-desc">
+            Field-theory motivated computer algebra system designed for the manipulation and simplification of tensorial expressions with multi-term symmetries and differential forms.
+          </p>
+        </a>
+
+        <a href="http://www.xact.es/" target="_blank" rel="noopener noreferrer" class="resource-card">
+          <div class="resource-header">
+            <span class="resource-name">xAct &nearr;</span>
+            <span class="resource-lang">Wolfram Language</span>
+          </div>
+          <p class="resource-desc">
+            Suite of packages for symbolic tensor computer algebra, supporting both abstract index manipulation and component-based calculations in general relativity and perturbation theory.
+          </p>
+        </a>
+
+        <a href="https://einsteinpy.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+          <div class="resource-header">
+            <span class="resource-name">EinsteinPy &nearr;</span>
+            <span class="resource-lang">Python</span>
+          </div>
+          <p class="resource-desc">
+            Open-source Python library providing symbolic tensor manipulations, geodesic integration, metric computations, and visualization utilities for general relativity.
+          </p>
+        </a>
+
+        <a href="https://einsteintoolkit.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+          <div class="resource-header">
+            <span class="resource-name">Einstein Toolkit &nearr;</span>
+            <span class="resource-lang">C / C++ / Fortran</span>
+          </div>
+          <p class="resource-desc">
+            Community-driven open-source platform of core computational modules for simulating black holes, neutron stars, and relativistic astrophysics built on the Cactus framework.
+          </p>
+        </a>
+
+        <a href="https://spectre-code.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+          <div class="resource-header">
+            <span class="resource-name">SpECTRE &nearr;</span>
+            <span class="resource-lang">C++</span>
+          </div>
+          <p class="resource-desc">
+            Open-source code for multi-scale, multi-physics problems in relativistic astrophysics and gravitational-wave source modeling using discontinuous Galerkin methods.
+          </p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Branches -->
+    <section class="section-block">
+      <h2>Branches</h2>
+      <div class="branch-list">
+        <a href="83AXX.html" class="branch-link">
+          <span>Special relativity</span>
+          <span class="branch-arrow">&rarr;</span>
+        </a>
+        <a href="83BXX.html" class="branch-link">
+          <span>Observational and experimental questions</span>
+          <span class="branch-arrow">&rarr;</span>
+        </a>
+        <a href="83CXX.html" class="branch-link">
+          <span>General relativity</span>
+          <span class="branch-arrow">&rarr;</span>
+        </a>
+        <a href="83DXX.html" class="branch-link">
+          <span>Relativistic gravitational theories other than Einstein's, including asymmetric field theories</span>
+          <span class="branch-arrow">&rarr;</span>
+        </a>
+        <a href="83EXX.html" class="branch-link">
+          <span>Unified, higher-dimensional and super field theories</span>
+          <span class="branch-arrow">&rarr;</span>
+        </a>
+        <a href="83FXX.html" class="branch-link">
+          <span>Relativistic cosmology</span>
+          <span class="branch-arrow">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Related Topics -->
+    <section class="section-block">
+      <h2>Related Topics</h2>
+      <div class="topic-tags">
+        <a href="53-XX.html" class="topic-tag">Differential geometry</a>
+        <a href="76-XX.html" class="topic-tag">Fluid mechanics</a>
+        <a href="81-XX.html" class="topic-tag">Quantum theory</a>
+        <a href="85-XX.html" class="topic-tag">Astronomy and astrophysics</a>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linear Algebra | Ma3</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --surface-hover: #f2f4f7;
+      --text: #1a1d21;
+      --text-muted: #5a6270;
+      --border: #dfe3e8;
+      --accent: #1d4ed8;
+      --badge-bg: #eef2ff;
+      --badge-text: #1e40af;
+    }
+
+    [data-theme="dark"] {
+      --bg: #111317;
+      --surface: #181b20;
+      --surface-hover: #21252c;
+      --text: #e6e8ec;
+      --text-muted: #9aa2b1;
+      --border: #2b303b;
+      --accent: #60a5fa;
+      --badge-bg: #1e293b;
+      --badge-text: #93c5fd;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 14px;
+      padding: 24px 16px 48px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .theme-btn {
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      font-size: 12px;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .theme-btn:hover {
+      background: var(--surface-hover);
+    }
+
+    header {
+      margin-bottom: 28px;
+    }
+
+    .topic-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 5px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      margin-bottom: 10px;
+      letter-spacing: 0.3px;
+    }
+
+    h1 {
+      font-size: 22px;
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    section {
+      margin-top: 32px;
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .search-input {
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      font-size: 12px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      width: 240px;
+      max-width: 100%;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .branch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+      gap: 12px;
+    }
+
+    a.branch-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    a.branch-card:hover {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    a.branch-card:focus {
+      outline: none;
+    }
+
+    .branch-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .branch-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .link-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .link-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .link-item:hover {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .link-item a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    .link-item a:hover {
+      text-decoration: underline;
+    }
+
+    .link-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      display: none;
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 16px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="topbar">
+      <a href="index.html" class="back-link">&larr; Back to Ma3 Tree</a>
+      <button id="themeToggle" class="theme-btn" type="button">Dark Mode</button>
+    </nav>
+
+    <header>
+      <span class="topic-badge">Algebra &bull; Matrix Theory</span>
+      <h1>Linear and Multilinear Algebra; Matrix Theory</h1>
+      <p class="subtitle">
+        Vector spaces, linear transformations $T: V \to W$, eigenvalues $\det(A - \lambda I) = 0$, matrix factorizations, and multilinear structures.
+      </p>
+    </header>
+
+    <section aria-labelledby="topics-heading">
+      <div class="section-header">
+        <h2 id="topics-heading">Core Topics &amp; Subfields</h2>
+        <input
+          type="search"
+          id="branchFilter"
+          class="search-input"
+          placeholder="Filter topic..."
+          aria-label="Filter Linear Algebra topics"
+        />
+      </div>
+
+      <div class="branch-grid" id="branchGrid">
+        <a href="15A03.html" class="branch-card" data-search="vector spaces linear dependence rank span basis dimension">
+          <div class="branch-title">Vector Spaces, Linear Dependence &amp; Rank</div>
+          <div class="branch-desc">Bases, dimension, subspaces, $\dim(\ker T) + \dim(\operatorname{im} T) = \dim V$, and matrix rank.</div>
+        </a>
+
+        <a href="15A04.html" class="branch-card" data-search="linear transformations semilinear operators kernel image dual">
+          <div class="branch-title">Linear &amp; Semilinear Transformations</div>
+          <div class="branch-desc">Matrix representations, change of basis, dual spaces $V^*$, and invariant subspaces.</div>
+        </a>
+
+        <a href="15A06.html" class="branch-card" data-search="linear equations systems gaussian elimination row echelon">
+          <div class="branch-title">Systems of Linear Equations</div>
+          <div class="branch-desc">Gaussian elimination, row echelon forms, solution spaces of $Ax = b$, and consistency criteria.</div>
+        </a>
+
+        <a href="15A09.html" class="branch-card" data-search="matrix inversion generalized inverses moore penrose pseudoinverse">
+          <div class="branch-title">Matrix Inversion &amp; Generalized Inverses</div>
+          <div class="branch-desc">Invertibility conditions, block matrix inverses, and Moore&ndash;Penrose pseudoinverses $A^+$.</div>
+        </a>
+
+        <a href="15A15.html" class="branch-card" data-search="determinants permanents traces alternating multilinear">
+          <div class="branch-title">Determinants, Permanents &amp; Traces</div>
+          <div class="branch-desc">Alternating multilinear forms, $\det(AB) = \det(A)\det(B)$, $\operatorname{tr}(A)$, and permanents.</div>
+        </a>
+
+        <a href="15A18.html" class="branch-card" data-search="eigenvalues singular values eigenvectors spectral theory">
+          <div class="branch-title">Eigenvalues, Singular Values &amp; Eigenvectors</div>
+          <div class="branch-desc">Characteristic polynomials, algebraic vs. geometric multiplicity, and spectral theorems.</div>
+        </a>
+
+        <a href="15A21.html" class="branch-card" data-search="canonical forms reductions jordan rational normal form diagonalization">
+          <div class="branch-title">Canonical Forms &amp; Classification</div>
+          <div class="branch-desc">Diagonalization, Jordan normal form, rational canonical form, and similarity invariants.</div>
+        </a>
+
+        <a href="15A23.html" class="branch-card" data-search="factorization decomposition matrices lu qr svd cholesky polar">
+          <div class="branch-title">Matrix Factorizations</div>
+          <div class="branch-desc">Singular Value Decomposition $A = U\Sigma V^T$, QR, LU, Cholesky, and polar decompositions.</div>
+        </a>
+
+        <a href="15A60.html" class="branch-card" data-search="norms matrices numerical range operator norm frobenius spectral radius">
+          <div class="branch-title">Matrix Norms &amp; Numerical Range</div>
+          <div class="branch-desc">Induced norms $\|A\|_p$, Frobenius norm $\|A\|_F$, spectral radius $\rho(A)$, and field of values.</div>
+        </a>
+
+        <a href="15A63.html" class="branch-card" data-search="quadratic bilinear forms inner products orthogonality gram schmidt sylvester">
+          <div class="branch-title">Quadratic &amp; Bilinear Forms; Inner Products</div>
+          <div class="branch-desc">Inner product spaces, Gram&ndash;Schmidt orthogonalization, and Sylvester's law of inertia.</div>
+        </a>
+
+        <a href="15A69.html" class="branch-card" data-search="multilinear algebra tensor calculus exterior wedge">
+          <div class="branch-title">Multilinear Algebra &amp; Tensor Products</div>
+          <div class="branch-desc">Tensor products $V \otimes W$, exterior algebra $\Lambda^k(V)$, and multilinear maps.</div>
+        </a>
+
+        <a href="15Bxx.html" class="branch-card" data-search="special matrices hermitian unitary orthogonal positive definite permutation stochastic">
+          <div class="branch-title">Special Matrices</div>
+          <div class="branch-desc">Hermitian, unitary, orthogonal, positive definite, stochastic, Toeplitz, and permutation matrices.</div>
+        </a>
+      </div>
+      <p class="empty-state" id="emptyState">No matching topics found.</p>
+    </section>
+
+    <section aria-labelledby="links-heading">
+      <div class="section-header">
+        <h2 id="links-heading">Links &amp; Resources</h2>
+      </div>
+
+      <ul class="link-list">
+        <li class="link-item">
+          <a href="https://www.reddit.com/r/LinearAlgebra/" target="_blank" rel="noopener noreferrer">
+            r/LinearAlgebra &mdash; Reddit Community
+          </a>
+          <span class="link-meta">
+            https://www.reddit.com/r/LinearAlgebra/ &bull; Discussions, problem solving, proofs, and linear algebra study resources.
+          </span>
+        </li>
+
+        <li class="link-item">
+          <a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/" target="_blank" rel="noopener noreferrer">
+            MIT OpenCourseWare 18.06 &mdash; Linear Algebra (Gilbert Strang)
+          </a>
+          <span class="link-meta">
+            https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/ &bull; Complete lecture notes, problem sets, and exams.
+          </span>
+        </li>
+
+        <li class="link-item">
+          <a href="https://linear.axler.net/" target="_blank" rel="noopener noreferrer">
+            Linear Algebra Done Right (Sheldon Axler)
+          </a>
+          <span class="link-meta">
+            https://linear.axler.net/ &bull; Open-access textbook focusing on vector spaces, linear maps, and determinant-free spectral theory.
+          </span>
+        </li>
+
+        <li class="link-item">
+          <a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank" rel="noopener noreferrer">
+            Essence of Linear Algebra &mdash; 3Blue1Brown
+          </a>
+          <span class="link-meta">
+            https://www.3blue1brown.com/topics/linear-algebra &bull; Geometric intuition for transformations, determinants, and eigenvectors.
+          </span>
+        </li>
+      </ul>
+    </section>
+  </div>
+
+  <script>
+    const root = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('ma3-theme');
+
+    if (savedTheme === 'dark') {
+      root.setAttribute('data-theme', 'dark');
+      themeToggle.textContent = 'Light Mode';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = root.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        root.removeAttribute('data-theme');
+        localStorage.setItem('ma3-theme', 'light');
+        themeToggle.textContent = 'Dark Mode';
+      } else {
+        root.setAttribute('data-theme', 'dark');
+        localStorage.setItem('ma3-theme', 'dark');
+        themeToggle.textContent = 'Light Mode';
+      }
+    });
+
+    const filterInput = document.getElementById('branchFilter');
+    const cards = document.querySelectorAll('.branch-card');
+    const emptyState = document.getElementById('emptyState');
+
+    filterInput.addEventListener('input', (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const text = (card.textContent + ' ' + card.dataset.search).toLowerCase();
+        const match = text.includes(query);
+        card.style.display = match ? '' : 'none';
+        if (match) visibleCount++;
+      });
+
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+    });
+  </script>
+</body>
+</html>

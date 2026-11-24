@@ -274,6 +274,96 @@
             background-color: #f1f5f9;
             transform: scale(1.05);
         }
+
+        /* Floating Easter Egg Video Popup (1/6605 Chance) */
+        .easter-egg-popup {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 400px;
+            max-width: calc(100vw - 40px);
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            box-shadow: 0 18px 36px -8px rgba(15, 23, 42, 0.28);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: popupSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .easter-egg-popup.visible {
+            display: flex;
+        }
+
+        @keyframes popupSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .easter-egg-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.55rem 0.85rem;
+            background: #0f172a;
+            color: #f8fafc;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: move;
+            user-select: none;
+        }
+
+        .easter-egg-title {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .easter-egg-close {
+            border: none;
+            background: rgba(255, 255, 255, 0.12);
+            color: #f8fafc;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background-color 0.15s;
+        }
+
+        .easter-egg-close:hover {
+            background: #ef4444;
+        }
+
+        .easter-egg-video-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000000;
+        }
+
+        .easter-egg-video-wrap iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -295,6 +385,23 @@
             <button id="fab-zoom-in" type="button" title="Zoom In">+</button>
             <button id="fab-zoom-out" type="button" title="Zoom Out">−</button>
             <button id="fab-center" type="button" title="Return to Mathematics Center">⌂</button>
+        </div>
+    </div>
+
+    <!-- Floating Popup for 1/6605 Probability Video -->
+    <div id="easter-egg-popup" class="easter-egg-popup" role="dialog" aria-label="Maths Degree Slander">
+        <div id="easter-egg-header" class="easter-egg-header">
+            <span class="easter-egg-title">🎲 1/6605 — Maths Degree Slander</span>
+            <button id="easter-egg-close" class="easter-egg-close" type="button" title="Tutup popup">✕</button>
+        </div>
+        <div class="easter-egg-video-wrap">
+            <iframe
+                id="easter-egg-frame"
+                src=""
+                title="Maths Degree Slander"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen>
+            </iframe>
         </div>
     </div>
 
@@ -1221,6 +1328,63 @@
         document.getElementById("fab-center").addEventListener("click", goToCenter);
         document.getElementById("fab-zoom-out").addEventListener("click", zoomOutStep);
         document.getElementById("fab-zoom-in").addEventListener("click", zoomInStep);
+
+        // ==============================================
+        // 10. FLOATING POPUP VIDEO (1/6605 PROBABILITY)
+        // ==============================================
+        const easterEggPopup = document.getElementById("easter-egg-popup");
+        const easterEggFrame = document.getElementById("easter-egg-frame");
+        const easterEggClose = document.getElementById("easter-egg-close");
+        const easterEggHeader = document.getElementById("easter-egg-header");
+
+        const YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/f9rOStEFiGg?autoplay=1&mute=1&rel=0";
+
+        function showEasterEggPopup() {
+            easterEggFrame.src = YOUTUBE_EMBED_URL;
+            easterEggPopup.classList.add("visible");
+        }
+
+        function closeEasterEggPopup() {
+            easterEggPopup.classList.remove("visible");
+            easterEggFrame.src = "";
+        }
+
+        easterEggClose.addEventListener("click", closeEasterEggPopup);
+
+        // Allow dragging the floating popup by its header
+        let isDraggingPopup = false;
+        let popupOffsetX = 0;
+        let popupOffsetY = 0;
+
+        easterEggHeader.addEventListener("mousedown", (e) => {
+            if (e.target === easterEggClose) return;
+            isDraggingPopup = true;
+            const rect = easterEggPopup.getBoundingClientRect();
+            popupOffsetX = e.clientX - rect.left;
+            popupOffsetY = e.clientY - rect.top;
+            easterEggPopup.style.bottom = "auto";
+            easterEggPopup.style.left = rect.left + "px";
+            easterEggPopup.style.top = rect.top + "px";
+        });
+
+        document.addEventListener("mousemove", (e) => {
+            if (!isDraggingPopup) return;
+            const maxLeft = window.innerWidth - easterEggPopup.offsetWidth;
+            const maxTop = window.innerHeight - easterEggPopup.offsetHeight;
+            const nextLeft = Math.max(0, Math.min(e.clientX - popupOffsetX, maxLeft));
+            const nextTop = Math.max(0, Math.min(e.clientY - popupOffsetY, maxTop));
+            easterEggPopup.style.left = nextLeft + "px";
+            easterEggPopup.style.top = nextTop + "px";
+        });
+
+        document.addEventListener("mouseup", () => {
+            isDraggingPopup = false;
+        });
+
+        // Roll 1/6605 probability on page load
+        if (Math.floor(Math.random() * 6605) === 0) {
+            showEasterEggPopup();
+        }
 
         // Initial setup & center camera at Mathematics (0, 0)
         updateGraph(root, 0.3);
